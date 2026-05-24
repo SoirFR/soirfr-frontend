@@ -13,7 +13,7 @@
 <style>
 :root{
   --cream:#F0EAD8;--ink:#111009;--rouge:#C2321F;--cobalt:#1B2D4A;--dust:#7A7060;
-  --border:rgba(17,16,9,0.13);--sidebar:340px;--hdr:56px;--bot:48px;
+  --border:rgba(17,16,9,0.13);--sidebar:340px;--hdr:56px;--bot:54px;
   --fc:'Barlow Condensed','Arial Narrow',sans-serif;--fb:'Barlow',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -31,59 +31,63 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);
   display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:200;}
 #sidebar::before{display:none;}
 #sidebar::after{display:none;}
-.sidebar-stripes{position:absolute;left:0;top:0;bottom:0;display:flex;gap:3px;pointer-events:none;z-index:10;}
-.sidebar-stripes span:nth-child(1){width:7px;background:var(--rouge);}
-.sidebar-stripes span:nth-child(2){width:5px;background:var(--rouge);}
-.sidebar-stripes span:nth-child(3){width:3px;background:var(--rouge);}
-.sidebar-stripes span:nth-child(4){width:2px;background:var(--rouge);}
-.s-logo{padding:18px 24px 12px 28px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.s-logo-wordmark{font-family:var(--fc);font-weight:900;font-size:68px;line-height:0.88;letter-spacing:-0.03em;color:var(--ink);text-transform:uppercase;user-select:none;}
+/* Stripe column: fixed 28px wide on left of sidebar */
+.sidebar-stripes{
+  position:absolute;left:0;top:0;bottom:0;width:28px;
+  display:flex;flex-direction:row;align-items:stretch;
+  gap:4px;padding:0 6px;
+  pointer-events:none;z-index:10;
+  background:var(--cream);
+  border-right:1px solid rgba(17,16,9,0.06);
+}
+.sidebar-stripes span:nth-child(1){flex:0 0 5px;background:var(--rouge);}
+.sidebar-stripes span:nth-child(2){flex:0 0 3px;background:var(--rouge);}
+.sidebar-stripes span:nth-child(3){flex:0 0 2px;background:var(--rouge);}
+.sidebar-stripes span:nth-child(4){flex:0 0 1px;background:var(--rouge);}
+.s-logo{padding:24px 24px 20px 44px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.s-logo-wordmark{font-family:var(--fc);font-weight:900;font-size:96px;line-height:0.88;letter-spacing:-0.03em;color:var(--ink);text-transform:uppercase;user-select:none;}
 .s-logo-wordmark .FR{color:var(--rouge);}
-.s-logo-tag{margin-top:8px;font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rouge);line-height:1.6;}
+.s-logo-tag{margin-top:12px;font-family:var(--fc);font-weight:700;font-size:15px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rouge);line-height:1.6;}
 
-.s-filters{flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 24px 12px 28px;}
+.s-filters{flex:1;overflow-y:auto;scrollbar-width:none;padding:14px 20px 14px 44px;}
 .s-filters::-webkit-scrollbar{display:none}
 .f-group{margin-bottom:14px;}
 .f-label{font-family:var(--fc);font-weight:700;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--dust);margin-bottom:5px;}
 .f-rule{width:24px;height:2px;background:var(--rouge);margin-bottom:6px;}
-.f-select{width:100%;background:transparent;border:1px solid var(--border);border-radius:0;padding:9px 12px;font-family:var(--fc);font-size:14px;font-weight:600;letter-spacing:0.04em;color:var(--ink);appearance:none;-webkit-appearance:none;
+.f-select{width:100%;background:transparent;border:1px solid var(--border);border-radius:0;padding:10px 12px;font-family:var(--fc);font-size:15px;font-weight:600;letter-spacing:0.04em;color:var(--ink);appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111009' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;outline:none;}
 .f-select:focus{border-color:var(--rouge);}
 .f-select option{background:var(--cream);color:var(--ink);}
 .f-radius-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.f-radius-val{font-family:var(--fc);font-weight:700;font-size:14px;letter-spacing:0.04em;color:var(--ink);}
+.f-radius-val{font-family:var(--fc);font-weight:700;font-size:15px;letter-spacing:0.04em;color:var(--ink);}
 input[type=range]{width:100%;-webkit-appearance:none;height:3px;background:var(--border);border-radius:0;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--rouge);border-radius:50%;border:2px solid var(--cream);box-shadow:0 1px 4px rgba(0,0,0,0.25);}
 input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--rouge);border-radius:50%;border:2px solid var(--cream);}
 .f-cats{display:flex;flex-wrap:wrap;gap:4px;}
-.f-cat{background:transparent;border:1px solid var(--border);border-radius:0;padding:5px 10px;font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--dust);cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:3px;}
+.f-cat{background:transparent;border:1px solid var(--border);border-radius:0;padding:6px 11px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--dust);cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:3px;}
 .f-cat:hover{border-color:var(--ink);color:var(--ink);}
 .f-cat.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
 .f-section-label{
-  font-family:var(--fc);font-weight:800;font-size:15px;
+  font-family:var(--fc);font-weight:800;font-size:17px;
   letter-spacing:0.1em;text-transform:uppercase;
   color:var(--ink);margin-bottom:8px;
   padding-bottom:6px;border-bottom:2px solid var(--rouge);
   display:inline-block;
 }
-.s-cta{flex-shrink:0;border-top:2px solid var(--ink);}
-.s-cta-btn{width:100%;background:var(--rouge);border:none;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fc);font-weight:800;font-size:15px;letter-spacing:0.18em;text-transform:uppercase;color:white;cursor:pointer;transition:background 0.15s;}
+.s-cta{flex-shrink:0;border-top:2px solid var(--ink);padding-left:0;}
+.s-cta-btn{width:100%;background:var(--rouge);border:none;padding:16px 20px 16px 44px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fc);font-weight:800;font-size:15px;letter-spacing:0.18em;text-transform:uppercase;color:white;cursor:pointer;transition:background 0.15s;}
 .s-cta-btn:hover{background:#A82818;}
-.s-foot{background:var(--ink);padding:9px 28px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.s-foot{background:var(--ink);padding:9px 28px 9px 36px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
 .s-foot a{font-family:var(--fc);font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,234,216,0.35);text-decoration:none;}
 .s-foot a:hover{color:rgba(240,234,216,0.8);}
 .s-foot-sep{width:1px;height:10px;background:rgba(255,255,255,0.1);}
 
 /* ── TOP BAR ── */
 #topbar{grid-area:topbar;background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;z-index:150;overflow:visible;}
-.tb-search{flex:1;position:relative;max-width:480px;}
-.tb-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dust);pointer-events:none;}
-.tb-search input{width:100%;border:none;border-bottom:2px solid var(--ink);background:transparent;padding:8px 8px 8px 30px;font-family:var(--fc);font-size:14px;font-weight:500;letter-spacing:0.02em;color:var(--ink);outline:none;}
-.tb-search input::placeholder{color:var(--dust);}
-.tb-search input:focus{border-bottom-color:var(--rouge);}
+
 .tb-sep{width:1px;height:20px;background:var(--border);}
-.tb-action{font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);background:transparent;border:none;cursor:pointer;padding:6px 4px;transition:color 0.12s;white-space:nowrap;}
+.tb-action{font-family:var(--fc);font-weight:700;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);background:transparent;border:none;cursor:pointer;padding:6px 4px;transition:color 0.12s;white-space:nowrap;}
 .tb-action:hover{color:var(--rouge);}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
 .lang-sw{display:flex;}
@@ -157,13 +161,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .lp-img img{width:100%;height:100%;object-fit:cover;}
 .lp-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#E8E0D0;}
 .lp-body{padding:12px 14px 10px;}
-.lp-cat{font-family:var(--fc);font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--rouge);margin-bottom:4px;}
-.lp-title{font-family:var(--fc);font-size:17px;font-weight:800;color:var(--ink);line-height:1.15;margin-bottom:6px;}
+.lp-cat{font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--rouge);margin-bottom:4px;}
+.lp-title{font-family:var(--fc);font-size:20px;font-weight:800;color:var(--ink);line-height:1.15;margin-bottom:6px;}
 .lp-rule{width:20px;height:2px;background:var(--rouge);margin-bottom:8px;}
-.lp-meta-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dust);font-weight:300;margin-bottom:3px;}
+.lp-meta-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dust);font-weight:300;margin-bottom:3px;}
 .lp-meta-icon{font-size:12px;}
 .lp-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--border);margin-top:4px;}
-.lp-link{font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rouge);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.lp-link{font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rouge);text-decoration:none;display:flex;align-items:center;gap:6px;}
 .lp-link:hover{color:var(--ink);}
 .lp-free{font-family:var(--fc);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;padding:2px 6px;}
 
@@ -180,16 +184,16 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 #drawer{position:absolute;bottom:0;left:0;right:0;z-index:400;display:flex;flex-direction:column;}
 #drawer-tab{background:var(--ink);border-top:2px solid var(--rouge);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--bot);cursor:pointer;flex-shrink:0;user-select:none;}
 .dt-left{display:flex;align-items:baseline;gap:10px;}
-.dt-count{font-family:var(--fc);font-size:28px;font-weight:900;color:var(--cream);line-height:1;}
-.dt-label{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,234,216,0.45);}
-.dt-loc{font-family:var(--fc);font-size:11px;font-weight:600;color:var(--rouge);margin-left:8px;}
+.dt-count{font-family:var(--fc);font-size:32px;font-weight:900;color:var(--cream);line-height:1;}
+.dt-label{font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,234,216,0.45);}
+.dt-loc{font-family:var(--fc);font-size:13px;font-weight:600;color:var(--rouge);margin-left:8px;}
 .dt-right{display:flex;align-items:center;gap:8px;}
-.dt-toggle{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--rouge);display:flex;align-items:center;gap:6px;}
+.dt-toggle{font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--rouge);display:flex;align-items:center;gap:6px;}
 .dt-arrow{font-size:14px;transition:transform 0.3s;display:inline-block;}
 .dt-arrow.up{transform:rotate(180deg);}
 
 #drawer-list{background:white;overflow-y:auto;height:0;transition:height 0.3s cubic-bezier(0.16,1,0.3,1);}
-#drawer-list.open{height:280px;}
+#drawer-list.open{height:320px;}
 
 .dl-item{display:flex;align-items:stretch;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;}
 .dl-item:hover{background:#FAFAF8;}
@@ -199,18 +203,18 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .dl-item.active .dl-cat{color:var(--rouge);}
 .dl-item.active .dl-date-block{border-right-color:rgba(255,255,255,0.1);}
 .dl-item.active .dl-day{color:var(--cream);}
-.dl-date-block{width:46px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--border);}
-.dl-day{font-family:var(--fc);font-size:20px;font-weight:800;line-height:1;color:var(--ink);}
-.dl-mon{font-family:var(--fc);font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dust);margin-top:2px;}
-.dl-thumb{width:54px;flex-shrink:0;overflow:hidden;background:var(--cream);}
+.dl-date-block{width:54px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--border);}
+.dl-day{font-family:var(--fc);font-size:24px;font-weight:800;line-height:1;color:var(--ink);}
+.dl-mon{font-family:var(--fc);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--dust);margin-top:2px;}
+.dl-thumb{width:64px;flex-shrink:0;overflow:hidden;background:var(--cream);}
 .dl-thumb img{width:100%;height:100%;object-fit:cover;}
-.dl-thumb-ph{width:100%;height:100%;min-height:54px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:#E8E0D0;}
+.dl-thumb-ph{width:100%;height:100%;min-height:64px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:#E8E0D0;}
 .dl-body{flex:1;padding:9px 12px;min-width:0;}
-.dl-cat{font-family:var(--fc);font-size:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--rouge);margin-bottom:2px;}
-.dl-title{font-family:var(--fc);font-size:15px;font-weight:700;line-height:1.2;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.dl-meta{font-size:11px;color:var(--dust);font-weight:300;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-cat{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--rouge);margin-bottom:2px;}
+.dl-title{font-family:var(--fc);font-size:17px;font-weight:700;line-height:1.2;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-meta{font-size:13px;color:var(--dust);font-weight:300;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dl-free{flex-shrink:0;display:flex;align-items:center;padding:0 10px;}
-.dl-free-tag{font-family:var(--fc);font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;border-radius:2px;padding:2px 5px;}
+.dl-free-tag{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;border-radius:2px;padding:2px 5px;}
 
 /* zone btn */
 #zone-btn{position:absolute;bottom:calc(var(--bot) + 12px);right:60px;background:white;border:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;z-index:400;box-shadow:0 2px 12px rgba(0,0,0,0.1);transition:box-shadow 0.15s;}
@@ -306,7 +310,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     </div>
     <div class="s-cta">
       <button class="s-cta-btn" onclick="doSearch()">
-        <span id="cta-txt">Rechercher</span><span class="s-cta-arrow">→</span>
+        <span id="cta-txt" style="padding-left:16px;">Rechercher</span><span class="s-cta-arrow">→</span>
       </button>
     </div>
     <div class="s-foot">
@@ -318,25 +322,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
   <!-- TOP BAR -->
   <div id="topbar">
-    <div class="tb-search" style="max-width:560px;position:relative;">
-      <span class="tb-search-icon">⌖</span>
-      <input type="text" id="addr-input" placeholder="Adresse, ville, code postal…" autocomplete="off"
-        oninput="const s=document.getElementById('addr-input-sidebar');if(s)s.value=this.value;onAddrInput(this.value,'top')"
-        style="border-bottom:none;border:1px solid var(--border);border-right:none;padding:7px 8px 7px 30px;">
-      <div id="autocomplete-list-top" style="display:none;position:absolute;left:0;right:0;top:100%;background:white;border:1px solid var(--border);z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.1);"></div>
-      <select id="radius-select-top" onchange="const r=document.getElementById('radius-range');if(r){r.value=this.value;document.getElementById('radius-val').textContent=this.value+' KM';}" style="border:1px solid var(--border);border-left:none;background:var(--cream);font-family:var(--fc);font-size:12px;font-weight:600;letter-spacing:0.04em;color:var(--ink);padding:7px 8px;outline:none;cursor:pointer;min-width:80px;">
-        <option value="10">10 km</option>
-        <option value="25" selected>25 km</option>
-        <option value="50">50 km</option>
-        <option value="100">100 km</option>
-        <option value="200">200 km</option>
-      </select>
-      <button onclick="doSearch()" style="background:var(--rouge);border:none;padding:7px 14px;color:white;font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;">→</button>
+    <div style="flex:1;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:13px;color:var(--dust);">⌖</span>
+      <span id="topbar-location" style="font-family:var(--fc);font-size:14px;font-weight:600;letter-spacing:0.04em;color:var(--ink);">—</span>
+      <span id="topbar-radius" style="font-family:var(--fc);font-size:11px;color:var(--dust);letter-spacing:0.04em;"></span>
     </div>
     <div class="tb-sep"></div>
     <button class="tb-action" id="tb-add">Ajouter un événement</button>
-    <div class="tb-sep"></div>
-    <button class="tb-action" id="tb-login">Se connecter</button>
     <div class="tb-right">
       <div class="lang-sw">
         <button class="lang-b on" onclick="setLang('fr')">FR</button>
@@ -344,6 +336,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       </div>
       <div class="tb-menu"><span></span><span></span><span></span></div>
     </div>
+    <input type="hidden" id="addr-input">
+    <input type="hidden" id="radius-select-top" value="25">
   </div>
 
   <!-- MAP AREA -->
@@ -387,13 +381,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 <script>
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
-let lang='fr',cat='',allEvs=[],userLat=null,userLng=null,userLabel='';
+let lang='fr',cats=[],allEvs=[],userLat=null,userLng=null,userLabel='';
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1,drawerOpen=false;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',login:'Se connecter',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',login:'Sign in',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Theatre',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',conference:'Talks',autre:'Event'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Theatre',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',conference:'Talks',autre:'Event'}}
 };
 
 const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🎤',autre:'📌'};
@@ -413,7 +407,7 @@ function setLang(l){
   document.getElementById('cta-txt').textContent=t('cta');
   document.getElementById('lc-txt').textContent=t('lc');
   document.getElementById('tb-add').textContent=t('addEvent');
-  document.getElementById('tb-login').textContent=t('login');
+
   
   
   
@@ -465,8 +459,8 @@ function dateRange(){
   return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
 }
 
-async function fetchEvs(lat,lng,km,from,to,c){
-  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:c||null,date_from:from,date_to:to,max_results:200})});
+async function fetchEvs(lat,lng,km,from,to,catsArr){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:(catsArr&&catsArr.length===1?catsArr[0]:null),date_from:from,date_to:to,max_results:200})});
   if(!r.ok)throw new Error(r.status);
   return r.json();
 }
@@ -491,10 +485,15 @@ async function doSearch(oLat,oLng,oLabel){
   document.getElementById('addr-input').value=label||addrVal;
   const sbar=document.getElementById('addr-input-sidebar');
   if(sbar)sbar.value=label||addrVal;
+  const tloc=document.getElementById('topbar-location');
+  if(tloc)tloc.textContent=label||addrVal||'—';
+  const trad=document.getElementById('topbar-radius');
+  const km2=document.getElementById('radius-range');
+  if(trad&&km2)trad.textContent='· '+km2.value+' km';
   showLoading();
   const{from,to}=dateRange();
   try{
-    allEvs=await fetchEvs(lat,lng,km,from,to,cat);
+    allEvs=await fetchEvs(lat,lng,km,from,to,cats);
     renderMapPins(allEvs);
     updateDrawerTab(allEvs,label);
     renderDrawerList(allEvs);
@@ -508,7 +507,7 @@ function searchInView(){
   const km=parseFloat(document.getElementById('radius-range').value)||25;
   const{from,to}=dateRange();
   // No loading overlay for background pan searches — avoids the flash
-  fetchEvs(c.lat,c.lng,km,from,to,cat).then(evs=>{
+  fetchEvs(c.lat,c.lng,km,from,to,cats).then(evs=>{
     allEvs=evs;
     renderMapPinsInPlace(evs);
     updateDrawerWithVisible();
@@ -658,7 +657,7 @@ function updateDrawerWithVisible(){
     if(isNaN(lat)||isNaN(lng))return false;
     return bounds.contains([lat,lng]);
   });
-  const toShow=cat?visible.filter(e=>e.category===cat):visible;
+  const toShow=cats.length?visible.filter(e=>cats.includes(e.category)):visible;
   updateDrawerTab(toShow,userLabel);
   renderDrawerList(toShow);
 }
@@ -721,11 +720,25 @@ function toggleDrawer(){
 }
 
 function pickCat(btn,c){
-  document.querySelectorAll('.f-cat').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');cat=c;
-  // Only filter already-loaded events — never trigger a new search or move map
+  if(c===''){
+    // "Toutes" clears all selections
+    cats=[];
+    document.querySelectorAll('.f-cat').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  } else {
+    // Toggle this category
+    document.querySelector('.f-cat[data-cat=""]').classList.remove('on');
+    if(cats.includes(c)){
+      cats=cats.filter(x=>x!==c);
+      btn.classList.remove('on');
+      if(cats.length===0) document.querySelector('.f-cat[data-cat=""]').classList.add('on');
+    } else {
+      cats.push(c);
+      btn.classList.add('on');
+    }
+  }
   if(allEvs.length){
-    const f=c?allEvs.filter(e=>e.category===c):allEvs;
+    const f=cats.length?allEvs.filter(e=>cats.includes(e.category)):allEvs;
     renderMapPinsInPlace(f);
     updateDrawerWithVisible();
   }
@@ -748,7 +761,7 @@ function onMapMove(){
 let acTimer=null;
 function onAddrInput(val, source='sidebar'){
   clearTimeout(acTimer);
-  const listId=source==='top'?'autocomplete-list-top':'autocomplete-list';
+  const listId='autocomplete-list';
   const list=document.getElementById(listId);
   if(!val||val.length<2){if(list)list.style.display='none';return;}
   acTimer=setTimeout(async()=>{
@@ -776,7 +789,6 @@ function onAddrInput(val, source='sidebar'){
 function selectAddr(label,lat,lng,source){
   document.getElementById('addr-input').value=label;
   const sb=document.getElementById('addr-input-sidebar');if(sb)sb.value=label;
-  const lt=document.getElementById('autocomplete-list-top');if(lt)lt.style.display='none';
   const ls=document.getElementById('autocomplete-list');if(ls)ls.style.display='none';
   doSearch(lat,lng,label);
 }
