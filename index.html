@@ -460,11 +460,10 @@ function searchInView(){
 // ── CLUSTER + PIN RENDERING ────────────────────────────────────────────────
 function renderMapPins(evs){
   if(!map)return;
-  if(clusterGroup){map.removeLayer(clusterGroup);clusterGroup=null;}
-  if(userMarker){map.removeLayer(userMarker);userMarker=null;}
   activeIdx=-1;
 
-  // User location pin
+  // User location pin — update without recreating
+  if(userMarker)map.removeLayer(userMarker);
   if(userLat&&userLng){
     userMarker=L.marker([userLat,userLng],{
       icon:L.divIcon({className:'',html:'<div class="user-dot"></div>',iconSize:[12,12],iconAnchor:[6,6]}),
@@ -472,24 +471,28 @@ function renderMapPins(evs){
     }).addTo(map);
   }
 
-  // Cluster group with custom icons
-  clusterGroup=L.markerClusterGroup({
-    maxClusterRadius:60,
-    iconCreateFunction:function(cluster){
-      const count=cluster.getChildCount();
-      const sz=count<5?'sm':count<15?'md':'lg';
-      return L.divIcon({
-        html:`<div class="soirfr-cluster soirfr-cluster-${sz}">${count}</div>`,
-        className:'',
-        iconSize:[sz==='sm'?32:sz==='md'?40:50,sz==='sm'?32:sz==='md'?40:50],
-        iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
-      });
-    },
-    // When clicking a cluster, open drawer filtered to that area
-    zoomToBoundsOnClick:true,
-    spiderfyOnMaxZoom:true,
-    showCoverageOnHover:false
-  });
+  // Create cluster group once, or clear if exists
+  if(!clusterGroup){
+    clusterGroup=L.markerClusterGroup({
+      maxClusterRadius:60,
+      animate:false,
+      animateAddingMarkers:false,
+      iconCreateFunction:function(cluster){
+        const count=cluster.getChildCount();
+        const sz=count<5?'sm':count<15?'md':'lg';
+        return L.divIcon({
+          html:`<div class="soirfr-cluster soirfr-cluster-${sz}">${count}</div>`,
+          className:'',
+          iconSize:[sz==='sm'?32:sz==='md'?40:50,sz==='sm'?32:sz==='md'?40:50],
+          iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
+        });
+      },
+      zoomToBoundsOnClick:true,spiderfyOnMaxZoom:true,showCoverageOnHover:false
+    });
+    map.addLayer(clusterGroup);
+  } else {
+    clusterGroup.clearLayers();
+  }
 
   evs.forEach((ev,i)=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
@@ -501,9 +504,7 @@ function renderMapPins(evs){
     clusterGroup.addLayer(m);
   });
 
-  map.addLayer(clusterGroup);
-
-  // Fit bounds
+  // Fit bounds only on first search
   const bounds=[];
   if(userLat&&userLng)bounds.push([userLat,userLng]);
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
@@ -511,29 +512,16 @@ function renderMapPins(evs){
   if(bounds.length>1)map.fitBounds(bounds,{padding:[50,50],maxZoom:13});
   else if(userLat)map.setView([userLat,userLng],12);
   setTimeout(()=>{suppressMove=false;},1500);
+
+  // Update drawer to show visible events
+  updateDrawerWithVisible();
 }
 
-// Same as renderMapPins but never moves the map viewport
+// Update pins without moving the map or destroying the cluster group
 function renderMapPinsInPlace(evs){
-  if(!map)return;
-  if(clusterGroup){map.removeLayer(clusterGroup);clusterGroup=null;}
-  if(userMarker){map.removeLayer(userMarker);userMarker=null;}
+  if(!map||!clusterGroup)return;
+  clusterGroup.clearLayers();
   activeIdx=-1;
-
-  clusterGroup=L.markerClusterGroup({
-    maxClusterRadius:60,
-    iconCreateFunction:function(cluster){
-      const count=cluster.getChildCount();
-      const sz=count<5?'sm':count<15?'md':'lg';
-      return L.divIcon({
-        html:`<div class="soirfr-cluster soirfr-cluster-${sz}">${count}</div>`,
-        className:'',
-        iconSize:[sz==='sm'?32:sz==='md'?40:50,sz==='sm'?32:sz==='md'?40:50],
-        iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
-      });
-    },
-    zoomToBoundsOnClick:true,spiderfyOnMaxZoom:true,showCoverageOnHover:false
-  });
 
   evs.forEach((ev,i)=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
@@ -544,8 +532,8 @@ function renderMapPinsInPlace(evs){
     m.on('click',()=>showPopup(i,m));
     clusterGroup.addLayer(m);
   });
-  map.addLayer(clusterGroup);
   // No fitBounds — map stays exactly where the user left it
+  updateDrawerWithVisible();
 }
 
 // ── POPUP (near pin, not corner) ──────────────────────────────────────────
@@ -603,6 +591,20 @@ function showPopup(idx,marker){
 }
 
 // ── DRAWER ────────────────────────────────────────────────────────────────
+// Update drawer to show only events visible in current map viewport
+function updateDrawerWithVisible(){
+  if(!map||!allEvs.length)return;
+  const bounds=map.getBounds();
+  const visible=allEvs.filter(ev=>{
+    const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
+    if(isNaN(lat)||isNaN(lng))return false;
+    return bounds.contains([lat,lng]);
+  });
+  const toShow=cat?visible.filter(e=>e.category===cat):visible;
+  updateDrawerTab(toShow,userLabel);
+  renderDrawerList(toShow);
+}
+
 function updateDrawerTab(evs,loc){
   document.getElementById('dt-count').textContent=evs.length||'—';
   document.getElementById('dt-label').textContent=t('events');
@@ -674,6 +676,8 @@ function hideLoading(){document.getElementById('loading-cover').style.display='n
 
 // ── MAP AUTO-PAN SEARCH ───────────────────────────────────────────────────
 function onMapMove(){
+  // Always update drawer count with visible events immediately
+  updateDrawerWithVisible();
   if(!searchEnabled||suppressMove)return;
   clearTimeout(moveTimer);
   moveTimer=setTimeout(searchInView,1200);
