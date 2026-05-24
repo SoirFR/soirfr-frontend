@@ -109,14 +109,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
 /* ── EVENT PINS ── */
 .map-pin{
-  width:12px;height:12px;background:var(--rouge);border-radius:50%;
+  width:14px;height:14px;background:var(--rouge);border-radius:50%;
   border:2px solid white;
   box-shadow:0 2px 6px rgba(194,50,31,0.4);
   cursor:pointer;
   transition:all 0.15s;
 }
 .map-pin.active{
-  width:18px;height:18px;
+  width:20px;height:20px;
   background:var(--rouge);
   border:2px solid white;
   box-shadow:0 0 0 5px rgba(194,50,31,0.25),0 0 0 10px rgba(194,50,31,0.1);
@@ -346,7 +346,7 @@ const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
 let lang='fr',cat='',allEvs=[],userLat=null,userLng=null,userLabel='';
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1,drawerOpen=false;
-let moveTimer=null,searchEnabled=false;
+let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
   fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',login:'Se connecter',navEvents:'Événements',navMap:'Carte',navFavs:'Mes Favoris',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
@@ -448,8 +448,9 @@ function searchInView(){
   const{from,to}=dateRange();
   showLoading();
   fetchEvs(c.lat,c.lng,km,from,to,cat).then(evs=>{
-    allEvs=evs;userLat=c.lat;userLng=c.lng;
-    renderMapPins(evs);
+    allEvs=evs;
+    // Update pins WITHOUT moving the map
+    renderMapPinsInPlace(evs);
     updateDrawerTab(evs,'');
     renderDrawerList(evs);
     hideLoading();
@@ -494,7 +495,7 @@ function renderMapPins(evs){
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[12,12],iconAnchor:[6,6]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
     });
     m.on('click',()=>showPopup(i,m));
     clusterGroup.addLayer(m);
@@ -506,8 +507,45 @@ function renderMapPins(evs){
   const bounds=[];
   if(userLat&&userLng)bounds.push([userLat,userLng]);
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
+  suppressMove=true;
   if(bounds.length>1)map.fitBounds(bounds,{padding:[50,50],maxZoom:13});
   else if(userLat)map.setView([userLat,userLng],12);
+  setTimeout(()=>{suppressMove=false;},1500);
+}
+
+// Same as renderMapPins but never moves the map viewport
+function renderMapPinsInPlace(evs){
+  if(!map)return;
+  if(clusterGroup){map.removeLayer(clusterGroup);clusterGroup=null;}
+  if(userMarker){map.removeLayer(userMarker);userMarker=null;}
+  activeIdx=-1;
+
+  clusterGroup=L.markerClusterGroup({
+    maxClusterRadius:60,
+    iconCreateFunction:function(cluster){
+      const count=cluster.getChildCount();
+      const sz=count<5?'sm':count<15?'md':'lg';
+      return L.divIcon({
+        html:`<div class="soirfr-cluster soirfr-cluster-${sz}">${count}</div>`,
+        className:'',
+        iconSize:[sz==='sm'?32:sz==='md'?40:50,sz==='sm'?32:sz==='md'?40:50],
+        iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
+      });
+    },
+    zoomToBoundsOnClick:true,spiderfyOnMaxZoom:true,showCoverageOnHover:false
+  });
+
+  evs.forEach((ev,i)=>{
+    const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
+    if(isNaN(lat)||isNaN(lng))return;
+    const m=L.marker([lat,lng],{
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
+    });
+    m.on('click',()=>showPopup(i,m));
+    clusterGroup.addLayer(m);
+  });
+  map.addLayer(clusterGroup);
+  // No fitBounds — map stays exactly where the user left it
 }
 
 // ── POPUP (near pin, not corner) ──────────────────────────────────────────
@@ -601,7 +639,9 @@ function selectFromList(idx){
   const ev=allEvs[idx];if(!ev||!ev.lat||!ev.lng)return;
   // Pan to event and open popup
   const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
+  suppressMove=true;
   map.setView([lat,lng],14,{animate:true});
+  setTimeout(()=>{suppressMove=false;},1500);
   // Find the marker and trigger popup
   setTimeout(()=>{
     clusterGroup.eachLayer(m=>{
@@ -634,9 +674,9 @@ function hideLoading(){document.getElementById('loading-cover').style.display='n
 
 // ── MAP AUTO-PAN SEARCH ───────────────────────────────────────────────────
 function onMapMove(){
-  if(!searchEnabled)return;
+  if(!searchEnabled||suppressMove)return;
   clearTimeout(moveTimer);
-  moveTimer=setTimeout(searchInView,900);
+  moveTimer=setTimeout(searchInView,1200);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
