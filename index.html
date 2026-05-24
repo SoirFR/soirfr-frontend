@@ -868,15 +868,14 @@ async function init(){
       },
       ()=>{
         // Silently fall back — map of France already showing, no error shown
-        dismiss();
-      },
+document.getElementById('addr-input').value="Beaune, Côte-d'Or";
+doSearch(47.0261,4.8357,'Beaune');      },
       {timeout:4000,maximumAge:120000}
     );
   } else {
-    dismiss();
-  }
+document.getElementById('addr-input').value="Beaune, Côte-d'Or";
+doSearch(47.0261,4.8357,'Beaune');  }
 }
-document.getElementById('search-btn').click();
 init();
 </script>
 </body>
