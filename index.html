@@ -315,21 +315,21 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
                    if(t)t.value=this.value;">
       </div>
 
-      <!-- QUAND -->
+      <!-- QUAND — unified single control -->
       <div class="f-group">
         <div class="f-section-label" id="lbl-when">Quand ?</div>
-        <select class="f-select" id="when-sel">
-          <option value="today" id="opt-today">Aujourd'hui</option>
+        <select class="f-select" id="when-sel" onchange="onWhenChange(this.value)">
+          <option value="today"   id="opt-today">Aujourd'hui</option>
           <option value="weekend" id="opt-weekend">Ce week-end</option>
-          <option value="week" selected id="opt-week">Cette semaine</option>
-          <option value="month" id="opt-month">Ce mois</option>
+          <option value="week"    selected id="opt-week">Cette semaine</option>
+          <option value="month"   id="opt-month">Ce mois</option>
+          <option value="3months" id="opt-3months">3 prochains mois</option>
+          <option value="year"    id="opt-year">Toute l'année</option>
+          <option value="custom"  id="opt-custom">Date précise…</option>
         </select>
-      </div>
-
-      <!-- DATE -->
-      <div class="f-group">
-        <div class="f-section-label" id="lbl-date">Date précise</div>
-        <input type="date" id="date-inp" class="f-select" style="background-image:none;">
+        <!-- Hidden date picker — only shows when "Date précise" is selected -->
+        <input type="date" id="date-inp" class="f-select" 
+          style="background-image:none;display:none;margin-top:6px;">
       </div>
       <div class="f-group" style="display:none">
         <div class="f-label" id="lbl-where">Où ?</div>
@@ -435,8 +435,8 @@ let map=null,clusterGroup=null,userMarker=null,activeIdx=-1,drawerOpen=false;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Theatre',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',conference:'Talks',autre:'Event'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',opt3months:'3 prochains mois',optYear:"Toute l'année",optCustom:'Date précise…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',opt3months:'Next 3 months',optYear:'This year',optCustom:'Specific date…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Theatre',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',conference:'Talks',autre:'Event'}}
 };
 
 const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🎤',autre:'📌'};
@@ -473,6 +473,9 @@ function setLang(l){
   document.getElementById('opt-weekend').textContent=t('optWeekend');
   document.getElementById('opt-week').textContent=t('optWeek');
   document.getElementById('opt-month').textContent=t('optMonth');
+  const o3=document.getElementById('opt-3months');if(o3)o3.textContent=t('opt3months');
+  const oy=document.getElementById('opt-year');if(oy)oy.textContent=t('optYear');
+  const oc=document.getElementById('opt-custom');if(oc)oc.textContent=t('optCustom');
   document.getElementById('zb-label').textContent=t('zoneBtn');
   document.getElementById('zb-sub').textContent=t('zoneSub');
   document.getElementById('ft-about').textContent=t('about');
@@ -497,15 +500,29 @@ async function revGeo(lat,lng){
   try{const r=await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`);const d=await r.json();const f=d.features?.[0];if(f)return f.properties.city||f.properties.label;}catch(e){}return '';
 }
 
+function onWhenChange(val){
+  const dp=document.getElementById('date-inp');
+  if(val==='custom'){
+    dp.style.display='block';
+    dp.value=dp.value||new Date().toISOString().split('T')[0];
+  } else {
+    dp.style.display='none';
+    dp.value='';
+  }
+}
+
 function dateRange(){
   const when=document.getElementById('when-sel').value;
   const dateVal=document.getElementById('date-inp').value;
-  if(dateVal)return{from:dateVal,to:new Date(new Date(dateVal).getTime()+86400000).toISOString().split('T')[0]};
-  const now=new Date(),today=now.toISOString().split('T')[0];
-  if(when==='today')return{from:today,to:new Date(now.getTime()+86400000).toISOString().split('T')[0]};
+  const now=new Date(), today=now.toISOString().split('T')[0];
+  if(when==='custom'&&dateVal) return{from:dateVal,to:new Date(new Date(dateVal).getTime()+86400000).toISOString().split('T')[0]};
+  if(when==='today') return{from:today,to:new Date(now.getTime()+86400000).toISOString().split('T')[0]};
   if(when==='weekend'){const day=now.getDay(),dif=day<=5?6-day:0;const sat=new Date(now.getTime()+dif*86400000);return{from:sat.toISOString().split('T')[0],to:new Date(sat.getTime()+2*86400000).toISOString().split('T')[0]};}
-  if(when==='month')return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
-  return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
+  if(when==='week') return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
+  if(when==='month') return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
+  if(when==='3months') return{from:today,to:new Date(now.getTime()+90*86400000).toISOString().split('T')[0]};
+  if(when==='year') return{from:today,to:new Date(now.getTime()+365*86400000).toISOString().split('T')[0]};
+  return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
 }
 
 async function fetchEvs(lat,lng,km,from,to,catsArr){
@@ -843,7 +860,7 @@ function selectAddr(label,lat,lng,source){
 }
 
 async function init(){
-  document.getElementById('date-inp').value=new Date().toISOString().split('T')[0];
+  // date-inp is hidden until user selects 'Date précise'
   document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
   map=L.map('map',{zoomControl:false}).setView([46.8,2.3],6);
@@ -881,4 +898,3 @@ init();
 </script>
 </body>
 </html>
-
