@@ -472,11 +472,23 @@ body{
 
 <script>
 const API_BASE='https://soirfr-scraper.vercel.app';
+const TOKEN_KEY='soirfr_admin_token';
 
 let currentFilter='pending';
 let submissions=[];
 let selectedId=null;
 let dirty=false;  // unsaved changes flag
+
+// ── TOKEN HELPERS ──
+function getToken(){return localStorage.getItem(TOKEN_KEY);}
+function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
+function clearToken(){localStorage.removeItem(TOKEN_KEY);}
+function authHeaders(extra){
+  const t=getToken();
+  const h={...(extra||{})};
+  if(t)h['Authorization']='Bearer '+t;
+  return h;
+}
 
 // ── LOGIN ──
 async function login(e){
@@ -489,7 +501,6 @@ async function login(e){
     const r=await fetch(`${API_BASE}/api/admin/login`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      credentials:'include',
       body:JSON.stringify({password:pwd})
     });
     if(!r.ok){
@@ -498,6 +509,13 @@ async function login(e){
       err.classList.add('show');
       return;
     }
+    const d=await r.json();
+    if(!d.token){
+      err.textContent='Réponse invalide du serveur';
+      err.classList.add('show');
+      return;
+    }
+    setToken(d.token);
     enterAdmin();
   }catch(ex){
     err.textContent='Erreur de connexion';
@@ -506,13 +524,13 @@ async function login(e){
 }
 
 async function logout(){
-  try{
-    await fetch(`${API_BASE}/api/admin/logout`,{method:'POST',credentials:'include'});
-  }catch{}
+  clearToken();
   document.getElementById('admin-view').classList.remove('show');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('logout-btn').style.display='none';
   document.getElementById('pwd').value='';
+  // Optional ping to logout endpoint (no-op server-side, just for symmetry)
+  try{await fetch(`${API_BASE}/api/admin/logout`,{method:'POST'});}catch{}
 }
 
 function enterAdmin(){
@@ -528,10 +546,11 @@ async function loadQueue(){
   list.innerHTML='<div class="queue-empty"><span class="loading-pulse"></span> Chargement…</div>';
   try{
     const r=await fetch(`${API_BASE}/api/admin/list?status=${currentFilter}`,{
-      credentials:'include'
+      headers:authHeaders()
     });
     if(r.status===401){
-      // Session expired
+      // Token expired or invalid
+      clearToken();
       document.getElementById('admin-view').classList.remove('show');
       document.getElementById('login-screen').style.display='flex';
       return;
@@ -846,8 +865,7 @@ async function saveEdits(){
   try{
     const r=await fetch(`${API_BASE}/api/admin/update`,{
       method:'PATCH',
-      headers:{'Content-Type':'application/json'},
-      credentials:'include',
+      headers:authHeaders({'Content-Type':'application/json'}),
       body:JSON.stringify({id:selectedId,fields})
     });
     if(!r.ok){
@@ -877,8 +895,7 @@ async function approveSubmission(){
   try{
     const r=await fetch(`${API_BASE}/api/admin/approve`,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      credentials:'include',
+      headers:authHeaders({'Content-Type':'application/json'}),
       body:JSON.stringify({id:selectedId})
     });
     if(!r.ok){
@@ -903,8 +920,7 @@ async function rejectSubmission(){
   try{
     const r=await fetch(`${API_BASE}/api/admin/reject`,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      credentials:'include',
+      headers:authHeaders({'Content-Type':'application/json'}),
       body:JSON.stringify({id:selectedId,reason:reason||null})
     });
     if(!r.ok){toast('Erreur','error');return;}
@@ -946,14 +962,21 @@ function escapeHtml(s){
 function escapeAttr(s){return escapeHtml(s);}
 
 // ── INIT ──
-// Try to load queue — if cookie valid we go straight in, otherwise show login
+// Try the list endpoint with our stored token. If it works we go straight in,
+// otherwise we show the login screen.
 (async function(){
+  const t=getToken();
+  if(!t)return;  // no token, show login by default
   try{
-    const r=await fetch(`${API_BASE}/api/admin/list?status=pending`,{credentials:'include'});
+    const r=await fetch(`${API_BASE}/api/admin/list?status=pending`,{
+      headers:authHeaders()
+    });
     if(r.ok){
       const d=await r.json();
       submissions=d.submissions||[];
       enterAdmin();
+    } else if(r.status===401){
+      clearToken();
     }
   }catch(e){
     // ignore — login screen shows by default
