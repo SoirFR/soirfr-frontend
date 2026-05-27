@@ -180,6 +180,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .user-dot{width:12px;height:12px;background:var(--cobalt);border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(27,45,74,0.2);}
 
 /* ── EVENT POPUP (near pin) ── */
+.leaflet-cluster-spider-leg{stroke:#C2321F !important;stroke-opacity:0.25 !important;stroke-width:1.5px !important;}
 .leaflet-popup-content-wrapper{
   background:white;border-radius:0;
   border-top:3px solid var(--rouge);
@@ -661,7 +662,8 @@ function renderMapPins(evs){
           iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
         });
       },
-      zoomToBoundsOnClick:false,spiderfyOnMaxZoom:false,showCoverageOnHover:false,
+      zoomToBoundsOnClick:true,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
+    spiderfyDistanceMultiplier:2.5,
     maxClusterRadius:30,
     disableClusteringAtZoom:15
     });
@@ -681,7 +683,7 @@ function renderMapPins(evs){
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
     m._soirfr_idx = i;
     m.on('click',()=>showPopup(i,m));
@@ -724,7 +726,7 @@ function renderMapPinsInPlace(evs){
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
     m._soirfr_idx = i;
     m._soirfr_idx = i;
