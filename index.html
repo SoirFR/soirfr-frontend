@@ -97,9 +97,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   padding-bottom:6px;border-bottom:2px solid var(--rouge);
   display:inline-block;
 }
-.s-cta{flex-shrink:0;border-top:2px solid var(--ink);padding-left:0;}
-.s-cta-btn{width:100%;background:var(--rouge);border:none;padding:16px 20px 16px 44px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fc);font-weight:800;font-size:15px;letter-spacing:0.18em;text-transform:uppercase;color:white;cursor:pointer;transition:background 0.15s;}
-.s-cta-btn:hover{background:#A82818;}
+
+
+
 .s-foot{background:var(--ink);padding:9px 28px 9px 36px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
 .s-foot a{font-family:var(--fc);font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,234,216,0.35);text-decoration:none;}
 .s-foot a:hover{color:rgba(240,234,216,0.8);}
@@ -318,7 +318,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       <!-- QUAND — unified single control -->
       <div class="f-group">
         <div class="f-section-label" id="lbl-when">Quand ?</div>
-        <select class="f-select" id="when-sel" onchange="onWhenChange(this.value)">
+        <select class="f-select" id="when-sel" onchange="onWhenChange(this.value);if(userLat)doSearch(userLat,userLng,userLabel);">
           <option value="today"   id="opt-today">Aujourd'hui</option>
           <option value="weekend" id="opt-weekend">Ce week-end</option>
           <option value="week"    selected id="opt-week">Cette semaine</option>
@@ -344,7 +344,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
           <button class="f-cat on" data-cat="" onclick="pickCat(this,'')"><span class="cl" id="cat-all">Toutes</span></button>
           <button class="f-cat" data-cat="musique" onclick="pickCat(this,'musique')">🎵 <span class="cl">Musique</span></button>
           <button class="f-cat" data-cat="cinema" onclick="pickCat(this,'cinema')">🎬 <span class="cl">Cinéma</span></button>
-          <button class="f-cat" data-cat="theatre" onclick="pickCat(this,'theatre')">🎭 <span class="cl">Théâtre</span></button>
+          <button class="f-cat" data-cat="theatre" onclick="pickCat(this,'theatre')">🎭 <span class="cl">Spectacles</span></button>
           <button class="f-cat" data-cat="expo" onclick="pickCat(this,'expo')">🖼 <span class="cl">Expos</span></button>
           <button class="f-cat" data-cat="degustation" onclick="pickCat(this,'degustation')">🍷 <span class="cl">Dégustations</span></button>
           <button class="f-cat" data-cat="brocante" onclick="pickCat(this,'brocante')">🏺 <span class="cl">Brocantes</span></button>
@@ -354,14 +354,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
           <button class="f-cat" data-cat="nature" onclick="pickCat(this,'nature')">🌿 <span class="cl">Nature</span></button>
           <button class="f-cat" data-cat="portes-ouvertes" onclick="pickCat(this,'portes-ouvertes')">🚪 <span class="cl">Portes Ouvertes</span></button>
           <button class="f-cat" data-cat="fete" onclick="pickCat(this,'fete')">🎉 <span class="cl">Fêtes</span></button>
+          <button class="f-cat" data-cat="patrimoine" onclick="pickCat(this,'patrimoine')">🏰 <span class="cl">Patrimoine</span></button>
+          <button class="f-cat" data-cat="ateliers" onclick="pickCat(this,'ateliers')">🎨 <span class="cl">Ateliers</span></button>
         </div>
       </div>
     </div>
-    <div class="s-cta">
-      <button class="s-cta-btn" onclick="doSearch()">
-        <span id="cta-txt" style="padding-left:16px;">Rechercher</span><span class="s-cta-arrow">→</span>
-      </button>
-    </div>
+
     <div class="s-foot">
       <a href="#" id="ft-about">À propos</a><div class="s-foot-sep"></div>
       <a href="#" id="ft-partners">Partenaires</a><div class="s-foot-sep"></div>
@@ -430,16 +428,16 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 <script>
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
-let lang='fr',cats=[],allEvs=[],userLat=null,userLng=null,userLabel='';
-let map=null,clusterGroup=null,userMarker=null,activeIdx=-1,drawerOpen=false;
+let lang='fr',cats=[],allEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
+let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',opt3months:'3 prochains mois',optYear:"Toute l'année",optCustom:'Date précise…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Théâtre',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',conference:'Conférences',autre:'Événement'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',opt3months:'Next 3 months',optYear:'This year',optCustom:'Specific date…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Theatre',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',conference:'Talks',autre:'Event'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',opt3months:'3 prochains mois',optYear:"Toute l'année",optCustom:'Date précise…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',opt3months:'Next 3 months',optYear:'This year',optCustom:'Specific date…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
-const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🎤',autre:'📌'};
+const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🏰',patrimoine:'🏰',ateliers:'🎨',autre:'🖼'};
 function t(k){return TX[lang][k]||TX.fr[k]||k;}
 function catLabel(c){
   if(!c||c==='autre')return TX[lang].cats['autre']||'Événement';
@@ -453,7 +451,7 @@ function setLang(l){
   lang=l;
   document.querySelectorAll('.lang-b').forEach(b=>b.classList.toggle('on',b.textContent===l.toUpperCase()));
   document.getElementById('addr-input').placeholder=t('placeholder');
-  document.getElementById('cta-txt').textContent=t('cta');
+  // cta button removed
   document.getElementById('lc-txt').textContent=t('lc');
   document.getElementById('tb-add').textContent=t('addEvent');
 
@@ -610,9 +608,27 @@ function renderMapPins(evs){
           iconAnchor:[sz==='sm'?16:sz==='md'?20:25,sz==='sm'?16:sz==='md'?20:25]
         });
       },
-      zoomToBoundsOnClick:true,spiderfyOnMaxZoom:true,showCoverageOnHover:false
+      zoomToBoundsOnClick:false,spiderfyOnMaxZoom:false,showCoverageOnHover:false,
+    maxClusterRadius:40
     });
-    map.addLayer(clusterGroup);
+    // Cluster click → zoom in or show list
+  clusterGroup.on('clusterclick', function(e) {
+    const zoom = map.getZoom();
+    if (zoom < 13) {
+      suppressMove = true;
+      map.setView(e.latlng, zoom + 2, {animate: true});
+      setTimeout(() => { suppressMove = false; }, 1500);
+    } else {
+      const markers = e.layer.getAllChildMarkers();
+      const locEvents = markers.map(m => allEvs[m._soirfr_idx]).filter(Boolean);
+      if (locEvents.length) {
+        if (!drawerOpen) toggleDrawer();
+        renderDrawerList(locEvents);
+        updateDrawerTab(locEvents, locEvents[0]?.city || userLabel);
+      }
+    }
+  });
+  map.addLayer(clusterGroup);
   } else {
     clusterGroup.clearLayers();
   }
@@ -623,6 +639,7 @@ function renderMapPins(evs){
     const m=L.marker([lat,lng],{
       icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
     });
+    m._soirfr_idx = i;
     m.on('click',()=>showPopup(i,m));
     clusterGroup.addLayer(m);
   });
@@ -652,6 +669,8 @@ function renderMapPinsInPlace(evs){
     const m=L.marker([lat,lng],{
       icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[16,16],iconAnchor:[8,8]})
     });
+    m._soirfr_idx = i;
+    m._soirfr_idx = i;
     m.on('click',()=>showPopup(i,m));
     clusterGroup.addLayer(m);
   });
