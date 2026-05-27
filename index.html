@@ -204,6 +204,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
 /* ── BOTTOM DRAWER ── */
 #drawer{position:absolute;bottom:0;left:0;right:0;z-index:400;display:flex;flex-direction:column;}
+#drawer-tab{cursor:pointer;user-select:none;flex-shrink:0;}
+/* Ensure drawer list never covers more than 45% of map height */
+#drawer-list.open{height:200px;max-height:45vh;}
 #drawer-tab{background:var(--ink);border-top:2px solid var(--rouge);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--bot);cursor:pointer;flex-shrink:0;user-select:none;}
 .dt-left{display:flex;align-items:baseline;gap:10px;}
 .dt-count{font-family:var(--fc);font-size:32px;font-weight:900;color:var(--cream);line-height:1;}
@@ -215,7 +218,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .dt-arrow.up{transform:rotate(180deg);}
 
 #drawer-list{background:white;overflow-y:auto;height:0;transition:height 0.3s cubic-bezier(0.16,1,0.3,1);}
-#drawer-list.open{height:320px;}
+
 
 .dl-item{display:flex;align-items:stretch;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;}
 .dl-item:hover{background:#FAFAF8;}
@@ -375,9 +378,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     </div>
 
     <div class="s-foot">
-      <a href="#" id="ft-about">À propos</a><div class="s-foot-sep"></div>
-      <a href="#" id="ft-partners">Partenaires</a><div class="s-foot-sep"></div>
-      <a href="#" id="ft-contact">Contact</a>
+      <a href="mailto:bonjour@soirfr.com" id="ft-contact">Contact</a>
     </div>
   </div>
 
@@ -421,7 +422,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     </div>
 
     <div id="drawer">
-      <div id="drawer-tab" onclick="toggleDrawer()">
+      <div id="drawer-tab" onclick="toggleDrawer()" style="position:relative;">
+      <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;"></div>
         <div class="dt-left">
           <div class="dt-count" id="dt-count">—</div>
           <div class="dt-label" id="dt-label">Événements</div>
@@ -447,8 +449,8 @@ let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
 const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🏰',patrimoine:'🏰',ateliers:'🎨',autre:'🖼'};
@@ -489,9 +491,7 @@ function setLang(l){
   const oc=document.getElementById('opt-custom');if(oc)oc.textContent=t('optCustom');
   document.getElementById('zb-label').textContent=t('zoneBtn');
   document.getElementById('zb-sub').textContent=t('zoneSub');
-  document.getElementById('ft-about').textContent=t('about');
-  document.getElementById('ft-partners').textContent=t('partners');
-  document.getElementById('ft-contact').textContent=t('contact');
+  const ftc=document.getElementById('ft-contact');if(ftc)ftc.textContent=t('contact');
   document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
   document.getElementById('dt-label').textContent=t('events');
   const tagEl=document.getElementById('s-tag');
@@ -633,7 +633,8 @@ function renderMapPins(evs){
   // Create cluster group once, or clear if exists
   if(!clusterGroup){
     clusterGroup=L.markerClusterGroup({
-      maxClusterRadius:60,
+      maxClusterRadius:30,
+    disableClusteringAtZoom:15,
       animate:false,
       animateAddingMarkers:false,
       iconCreateFunction:function(cluster){
@@ -647,7 +648,8 @@ function renderMapPins(evs){
         });
       },
       zoomToBoundsOnClick:false,spiderfyOnMaxZoom:false,showCoverageOnHover:false,
-    maxClusterRadius:40
+    maxClusterRadius:30,
+    disableClusteringAtZoom:15
     });
     // Cluster click — always zoom in smoothly
   clusterGroup.on('clusterclick', function(e) {
@@ -677,7 +679,8 @@ function renderMapPins(evs){
   if(userLat&&userLng)bounds.push([userLat,userLng]);
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
   suppressMove=true;
-  if(bounds.length>1)map.fitBounds(bounds,{padding:[50,50],maxZoom:13});
+  const drawerPad = drawerOpen ? 210 : 50;
+  if(bounds.length>1)map.fitBounds(bounds,{paddingTopLeft:[50,50],paddingBottomRight:[50,drawerPad],maxZoom:13});
   else if(userLat)map.setView([userLat,userLng],12);
   setTimeout(()=>{suppressMove=false;},1500);
 
@@ -830,6 +833,11 @@ function toggleDrawer(){
   document.getElementById('drawer-list').classList.toggle('open',drawerOpen);
   document.getElementById('dt-arrow').classList.toggle('up',drawerOpen);
   document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
+  // Adjust map padding so center accounts for drawer
+  const drawerH = drawerOpen ? 200 : 0;
+  if(map) map.invalidateSize();
+  if(map) map.options.paddingTopLeft = [0,0];
+  if(map) map.options.paddingBottomRight = [0, drawerH];
 }
 
 function pickCat(btn,c){
