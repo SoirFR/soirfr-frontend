@@ -86,10 +86,24 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);
 input[type=range]{width:100%;-webkit-appearance:none;height:3px;background:var(--border);border-radius:0;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--rouge);border-radius:50%;border:2px solid var(--cream);box-shadow:0 1px 4px rgba(0,0,0,0.25);}
 input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--rouge);border-radius:50%;border:2px solid var(--cream);}
-.f-cats{display:flex;flex-wrap:wrap;gap:4px;}
-.f-cat{background:transparent;border:1px solid var(--border);border-radius:0;padding:6px 11px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--dust);cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:3px;}
-.f-cat:hover{border-color:var(--ink);color:var(--ink);}
-.f-cat.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+.f-cats{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.f-cat{
+  background:transparent;
+  border:1.5px solid var(--border);
+  border-radius:24px;
+  padding:6px 14px;
+  font-family:var(--fc);font-size:12px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--dust);cursor:pointer;
+  transition:all 0.15s;
+  display:flex;align-items:center;gap:5px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.f-cat:hover{border-color:var(--rouge);color:var(--rouge);}
+.f-cat.on{background:var(--rouge);color:white;border-color:var(--rouge);}
 .f-section-label{
   font-family:var(--fc);font-weight:800;font-size:17px;
   letter-spacing:0.1em;text-transform:uppercase;
@@ -679,9 +693,21 @@ function renderMapPins(evs){
   if(userLat&&userLng)bounds.push([userLat,userLng]);
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
   suppressMove=true;
-  const drawerPad = drawerOpen ? 210 : 50;
-  if(bounds.length>1)map.fitBounds(bounds,{paddingTopLeft:[50,50],paddingBottomRight:[50,drawerPad],maxZoom:13});
-  else if(userLat)map.setView([userLat,userLng],12);
+  const drawerH = drawerOpen ? 210 : 0;
+  const padBottom = 50 + drawerH;
+  if(bounds.length>1){
+    map.fitBounds(bounds,{
+      paddingTopLeft:[50,50],
+      paddingBottomRight:[50,padBottom],
+      maxZoom:13
+    });
+  } else if(userLat){
+    // Offset center upward by half the drawer height in pixels
+    const pt = map.project([userLat,userLng], 12);
+    const offsetPt = pt.subtract([0, drawerH/2]);
+    const offsetLatLng = map.unproject(offsetPt, 12);
+    map.setView(offsetLatLng, 12);
+  }
   setTimeout(()=>{suppressMove=false;},1500);
 
   // Update drawer to show visible events
