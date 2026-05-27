@@ -694,21 +694,20 @@ function renderMapPins(evs){
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
   suppressMove=true;
   const drawerH = drawerOpen ? 210 : 0;
-  const padBottom = 50 + drawerH;
   if(bounds.length>1){
     map.fitBounds(bounds,{
       paddingTopLeft:[50,50],
-      paddingBottomRight:[50,padBottom],
+      paddingBottomRight:[50, 50 + drawerH],
       maxZoom:13
     });
   } else if(userLat){
-    // Offset center upward by half the drawer height in pixels
-    const pt = map.project([userLat,userLng], 12);
-    const offsetPt = pt.subtract([0, drawerH/2]);
-    const offsetLatLng = map.unproject(offsetPt, 12);
-    map.setView(offsetLatLng, 12);
+    map.setView([userLat,userLng],12);
   }
-  setTimeout(()=>{suppressMove=false;},1500);
+  // After fitBounds settles, pan up by half drawer height so visual center is correct
+  setTimeout(()=>{
+    if(drawerH > 0) map.panBy([0, -(drawerH/2)], {animate:false});
+    suppressMove=false;
+  }, 600);
 
   // Update drawer to show visible events
   updateDrawerWithVisible();
