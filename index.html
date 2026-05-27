@@ -859,20 +859,29 @@ function renderDrawerList(evs){
 
 function selectFromList(idx){
   const ev=allEvs[idx];if(!ev||!ev.lat||!ev.lng)return;
-  // Pan to event and open popup
   const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
-  suppressMove=true;
-  map.setView([lat,lng],14,{animate:true});
-  setTimeout(()=>{suppressMove=false;},1500);
-  // Find the marker and trigger popup
-  setTimeout(()=>{
-    clusterGroup.eachLayer(m=>{
-      const ll=m.getLatLng();
-      if(Math.abs(ll.lat-lat)<0.0001&&Math.abs(ll.lng-lng)<0.0001){
+  // Highlight in list
+  document.querySelectorAll('.dl-item').forEach(el=>el.classList.remove('active'));
+  const row=document.querySelector(`.dl-item[data-idx="${idx}"]`);
+  if(row)row.classList.add('active');
+  // Find marker and show popup WITHOUT moving map
+  // Only pan if the marker is outside current view
+  let found=false;
+  clusterGroup.eachLayer(m=>{
+    if(found)return;
+    const ll=m.getLatLng();
+    if(Math.abs(ll.lat-lat)<0.001&&Math.abs(ll.lng-lng)<0.001){
+      found=true;
+      if(!map.getBounds().contains(ll)){
+        suppressMove=true;
+        map.panTo(ll,{animate:true});
+        setTimeout(()=>{suppressMove=false;showPopup(idx,m);},400);
+      } else {
         showPopup(idx,m);
       }
-    });
-  },400);
+    }
+  });
+  if(!found) showPopup(idx,{getLatLng:()=>L.latLng(lat,lng)});
 }
 
 function toggleDrawer(){
