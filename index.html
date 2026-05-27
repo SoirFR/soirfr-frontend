@@ -631,9 +631,27 @@ function searchInView(){
   }).catch(()=>{});
 }
 
+// Jitter helper — slightly offsets duplicate coords so pins don't stack
+function jitterCoords(evs){
+  const seen={};
+  return evs.map(ev=>{
+    let lat=parseFloat(ev.lat), lng=parseFloat(ev.lng);
+    if(isNaN(lat)||isNaN(lng)) return ev;
+    const key=lat.toFixed(3)+','+lng.toFixed(3);
+    seen[key]=(seen[key]||0)+1;
+    if(seen[key]>1){
+      const angle=(seen[key]-1)*(2*Math.PI/8);
+      lat+=Math.cos(angle)*0.0003;
+      lng+=Math.sin(angle)*0.0003;
+    }
+    return {...ev, lat, lng};
+  });
+}
+
 // ── CLUSTER + PIN RENDERING ────────────────────────────────────────────────
 function renderMapPins(evs){
   if(!map)return;
+  evs=jitterCoords(evs);
   activeIdx=-1;
 
   // User location pin — update without recreating
@@ -719,6 +737,7 @@ function renderMapPins(evs){
 // Update pins without moving the map or destroying the cluster group
 function renderMapPinsInPlace(evs){
   if(!map||!clusterGroup)return;
+  evs=jitterCoords(evs);
   clusterGroup.clearLayers();
   activeIdx=-1;
 
