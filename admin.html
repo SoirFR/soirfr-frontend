@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/favicon.png">
+<title>Admin · SoirFR</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#F0EAD8;--ink:#111009;--rouge:#C2321F;--cobalt:#1B2D4A;--dust:#7A7060;
+  --border:rgba(17,16,9,0.13);--softborder:rgba(17,16,9,0.08);
+  --green:#5A7A4A;
+  --fc:'Barlow Condensed','Arial Narrow',sans-serif;
+  --fb:'Barlow',sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;-webkit-font-smoothing:antialiased;}
+body{
+  background:var(--cream);color:var(--ink);font-family:var(--fb);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* ── HEADER ── */
+.page-header{
+  background:var(--cream);
+  border-bottom:1px solid var(--border);
+  padding:18px 36px 16px 64px;
+  position:relative;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+}
+.page-stripes{
+  position:absolute;left:0;top:0;bottom:0;width:28px;
+  display:flex;flex-direction:row;gap:4px;padding:0 6px;
+  border-right:1px solid rgba(17,16,9,0.06);
+}
+.page-stripes span{display:block;height:100%;background:var(--rouge);}
+.page-stripes span:nth-child(1){width:5px;}
+.page-stripes span:nth-child(2){width:3px;}
+.page-stripes span:nth-child(3){width:2px;}
+.page-stripes span:nth-child(4){width:1px;}
+
+.header-left{display:flex;align-items:center;gap:24px;}
+.wordmark{
+  font-family:var(--fc);font-weight:900;
+  font-size:42px;line-height:0.9;letter-spacing:-0.02em;
+  color:var(--ink);text-transform:uppercase;text-decoration:none;
+}
+.wordmark .FR{color:var(--rouge);}
+.admin-badge{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--cream);background:var(--ink);
+  padding:4px 10px;
+}
+.header-right{display:flex;align-items:center;gap:18px;}
+.header-link{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dust);text-decoration:none;cursor:pointer;
+  background:transparent;border:none;transition:color 0.15s;
+}
+.header-link:hover{color:var(--rouge);}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{
+  min-height:calc(100vh - 80px);
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 16px;
+}
+.login-card{
+  width:100%;max-width:380px;
+  background:white;border:1px solid var(--border);
+  padding:36px 32px;
+}
+.login-rule{width:40px;height:3px;background:var(--rouge);margin-bottom:20px;}
+.login-title{
+  font-family:var(--fc);font-weight:900;
+  font-size:36px;line-height:1;letter-spacing:-0.01em;
+  color:var(--ink);text-transform:uppercase;
+  margin-bottom:8px;
+}
+.login-sub{
+  font-family:var(--fb);font-style:italic;font-size:14px;
+  color:var(--dust);margin-bottom:28px;
+}
+.login-field{margin-bottom:18px;}
+.login-label{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dust);margin-bottom:6px;
+}
+.login-input{
+  width:100%;background:transparent;border:1px solid var(--border);
+  padding:12px 14px;font-family:var(--fb);font-size:15px;
+  color:var(--ink);outline:none;transition:border-color 0.15s;
+}
+.login-input:focus{border-color:var(--rouge);}
+.login-btn{
+  width:100%;background:var(--rouge);color:white;border:none;
+  padding:14px;font-family:var(--fc);font-weight:800;
+  font-size:13px;letter-spacing:0.22em;text-transform:uppercase;
+  cursor:pointer;transition:background 0.15s;
+}
+.login-btn:hover{background:#A82817;}
+.login-err{
+  font-family:var(--fb);font-size:13px;color:var(--rouge);
+  margin-top:14px;text-align:center;display:none;
+}
+.login-err.show{display:block;}
+
+/* ── MAIN ADMIN VIEW ── */
+.admin-view{display:none;}
+.admin-view.show{display:block;}
+.admin-shell{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  min-height:calc(100vh - 80px);
+}
+
+/* ── LEFT QUEUE ── */
+.queue{
+  background:white;border-right:1px solid var(--border);
+  overflow-y:auto;height:calc(100vh - 80px);
+}
+.queue-header{
+  position:sticky;top:0;background:white;z-index:5;
+  padding:18px 20px 12px;border-bottom:1px solid var(--border);
+}
+.queue-title-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.queue-title{
+  font-family:var(--fc);font-weight:800;font-size:20px;
+  letter-spacing:0.04em;text-transform:uppercase;color:var(--ink);
+}
+.queue-count{
+  font-family:var(--fc);font-weight:900;font-size:28px;
+  color:var(--rouge);line-height:1;
+}
+.queue-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.queue-filter{
+  font-family:var(--fc);font-weight:700;font-size:10px;
+  letter-spacing:0.14em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--border);
+  padding:5px 10px;cursor:pointer;color:var(--dust);
+  transition:all 0.15s;
+}
+.queue-filter:hover{border-color:var(--rouge);color:var(--rouge);}
+.queue-filter.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+
+.queue-list{padding:8px 0;}
+.queue-empty{
+  text-align:center;padding:48px 20px;
+  font-family:var(--fc);font-weight:600;font-size:12px;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);
+}
+
+.queue-item{
+  display:flex;align-items:stretch;
+  padding:12px 20px;cursor:pointer;
+  border-bottom:1px solid var(--softborder);
+  transition:background 0.1s;
+  position:relative;
+}
+.queue-item:hover{background:#FAFAF8;}
+.queue-item.active{background:var(--ink);}
+.queue-item.active .qi-title,
+.queue-item.active .qi-meta,
+.queue-item.active .qi-sub{color:var(--cream);}
+.queue-item.active .qi-status-pending{color:var(--rouge);}
+.queue-item.active .qi-meta{color:rgba(240,234,216,0.55);}
+.queue-item.active .qi-sub{color:rgba(240,234,216,0.4);}
+
+.qi-body{flex:1;min-width:0;}
+.qi-status{
+  font-family:var(--fc);font-weight:700;font-size:9px;
+  letter-spacing:0.2em;text-transform:uppercase;margin-bottom:3px;
+  display:flex;align-items:center;gap:6px;
+}
+.qi-status-pending{color:var(--rouge);}
+.qi-status-approved{color:var(--green);}
+.qi-status-rejected{color:var(--dust);}
+.qi-vision-mark{
+  font-family:var(--fm);font-size:9px;
+  color:var(--dust);font-weight:400;
+}
+.qi-title{
+  font-family:var(--fc);font-weight:700;font-size:16px;
+  line-height:1.15;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.qi-meta{
+  font-family:var(--fb);font-size:13px;color:var(--dust);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.qi-sub{
+  font-family:var(--fc);font-size:10px;
+  letter-spacing:0.1em;color:var(--dust);
+  text-transform:uppercase;margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* ── RIGHT DETAIL PANEL ── */
+.detail{
+  overflow-y:auto;height:calc(100vh - 80px);
+  padding:32px 40px 60px;
+}
+.detail-empty{
+  display:flex;align-items:center;justify-content:center;
+  height:100%;flex-direction:column;gap:14px;color:var(--dust);
+}
+.detail-empty-icon{font-size:42px;opacity:0.4;}
+.detail-empty-text{
+  font-family:var(--fc);font-weight:700;font-size:13px;
+  letter-spacing:0.2em;text-transform:uppercase;
+}
+
+.detail-header{
+  display:flex;align-items:flex-start;gap:24px;
+  margin-bottom:28px;padding-bottom:20px;
+  border-bottom:1px solid var(--border);
+}
+.detail-image-wrap{
+  flex-shrink:0;width:160px;height:160px;
+  background:var(--cream);border:1px solid var(--border);
+  overflow:hidden;
+}
+.detail-image-wrap img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
+.detail-image-wrap.empty{
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;opacity:0.3;
+}
+.detail-meta{flex:1;min-width:0;}
+.detail-id-row{
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;
+  font-family:var(--fm);font-size:11px;color:var(--dust);
+}
+.detail-id{font-weight:500;}
+.detail-submitted-at{margin-left:auto;}
+.detail-status-tag{
+  font-family:var(--fc);font-weight:700;font-size:10px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  padding:3px 8px;
+}
+.detail-status-tag.pending{background:var(--rouge);color:white;}
+.detail-status-tag.approved{background:var(--green);color:white;}
+.detail-status-tag.rejected{background:var(--dust);color:white;}
+.detail-submitter{
+  font-family:var(--fc);font-weight:800;font-size:22px;
+  letter-spacing:0.02em;color:var(--ink);margin-bottom:4px;
+}
+.detail-submitter-meta{
+  font-family:var(--fb);font-size:14px;color:var(--dust);
+  line-height:1.5;
+}
+.detail-submitter-meta a{color:var(--cobalt);text-decoration:underline;}
+.detail-vision-tag{
+  display:inline-block;margin-top:8px;
+  font-family:var(--fc);font-weight:700;font-size:9px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--cobalt);background:rgba(27,45,74,0.08);
+  padding:3px 8px;
+}
+
+/* ── FILES LIST ── */
+.detail-files{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;
+}
+.file-thumb{
+  display:flex;align-items:center;gap:8px;
+  background:white;border:1px solid var(--border);
+  padding:8px 12px;
+  font-family:var(--fb);font-size:12px;
+  color:var(--ink);text-decoration:none;
+  transition:border-color 0.15s;
+}
+.file-thumb:hover{border-color:var(--rouge);}
+.file-thumb-icon{font-size:14px;}
+
+/* ── FORM ── */
+.form-grid{display:grid;gap:18px;}
+.form-section-label{
+  font-family:var(--fc);font-weight:800;font-size:13px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ink);padding-bottom:6px;
+  border-bottom:2px solid var(--rouge);
+  display:inline-block;margin-top:12px;margin-bottom:14px;
+}
+.form-row{display:grid;gap:14px;}
+.form-row.two{grid-template-columns:1fr 1fr;}
+.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:900px){
+  .form-row.two,.form-row.three{grid-template-columns:1fr;}
+}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-label{
+  font-family:var(--fc);font-weight:700;font-size:10px;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--dust);
+}
+.form-label-row{display:flex;align-items:center;gap:8px;}
+.form-vision-mark{
+  font-family:var(--fc);font-weight:700;font-size:9px;
+  letter-spacing:0.14em;color:var(--cobalt);
+  background:rgba(27,45,74,0.08);padding:1px 6px;
+}
+.form-input,.form-textarea,.form-select{
+  background:white;border:1px solid var(--border);
+  padding:10px 12px;font-family:var(--fb);font-size:14px;
+  color:var(--ink);outline:none;width:100%;
+  transition:border-color 0.15s;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--rouge);}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.form-select{
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111009' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+}
+.form-check{display:flex;align-items:center;gap:8px;font-family:var(--fb);font-size:13px;color:var(--ink);}
+.form-check input{width:16px;height:16px;accent-color:var(--rouge);}
+
+/* ── ACTION BAR (sticky bottom of detail panel) ── */
+.action-bar{
+  position:sticky;bottom:-60px;
+  margin:32px -40px -60px;
+  background:var(--ink);
+  padding:18px 40px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  border-top:3px solid var(--rouge);
+}
+.action-status{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(240,234,216,0.55);
+  margin-right:auto;
+}
+.action-status.unsaved{color:#F2B441;}
+.action-btn{
+  font-family:var(--fc);font-weight:800;font-size:12px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  padding:11px 18px;border:none;cursor:pointer;
+  transition:background 0.15s,transform 0.05s;
+}
+.action-btn:active{transform:translateY(1px);}
+.action-btn.save{background:transparent;color:var(--cream);border:1px solid rgba(240,234,216,0.3);}
+.action-btn.save:hover{border-color:var(--cream);}
+.action-btn.reject{background:transparent;color:var(--cream);border:1px solid rgba(240,234,216,0.3);}
+.action-btn.reject:hover{background:rgba(255,255,255,0.06);}
+.action-btn.approve{background:var(--rouge);color:white;}
+.action-btn.approve:hover{background:#A82817;}
+.action-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--cream);
+  padding:14px 22px;
+  font-family:var(--fc);font-weight:700;font-size:12px;
+  letter-spacing:0.16em;text-transform:uppercase;
+  z-index:1000;opacity:0;pointer-events:none;
+  transition:opacity 0.2s;
+  max-width:90vw;
+}
+.toast.show{opacity:1;}
+.toast.error{background:var(--rouge);}
+.toast.success{background:var(--green);}
+
+/* ── IMAGE MODAL ── */
+.img-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(17,16,9,0.92);
+  z-index:2000;align-items:center;justify-content:center;
+  padding:24px;cursor:zoom-out;
+}
+.img-modal.show{display:flex;}
+.img-modal img{max-width:100%;max-height:100%;object-fit:contain;}
+
+/* ── LOADING ── */
+.loading-pulse{
+  display:inline-block;width:8px;height:8px;background:var(--rouge);
+  border-radius:50%;animation:ldot 1s ease infinite;
+}
+@keyframes ldot{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+/* ── MOBILE ── */
+@media(max-width:860px){
+  .admin-shell{grid-template-columns:1fr;}
+  .queue{height:auto;max-height:50vh;border-right:none;border-bottom:1px solid var(--border);}
+  .detail{height:auto;padding:24px 18px 60px;}
+  .detail-header{flex-direction:column;}
+  .detail-image-wrap{width:100%;max-width:280px;}
+  .action-bar{margin:24px -18px -60px;padding:14px 18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="page-stripes"><span></span><span></span><span></span><span></span></div>
+  <div class="header-left">
+    <a href="/" class="wordmark">Soir<span class="FR">FR</span></a>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div class="header-right" id="header-right">
+    <a href="/" class="header-link">← Retour à l'agenda</a>
+    <button class="header-link" id="logout-btn" style="display:none;" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <form class="login-card" id="login-form" onsubmit="login(event)">
+    <div class="login-rule"></div>
+    <div class="login-title">Connexion</div>
+    <div class="login-sub">Espace de modération SoirFR</div>
+    <div class="login-field">
+      <div class="login-label">Mot de passe</div>
+      <input type="password" class="login-input" id="pwd" autocomplete="current-password" autofocus>
+    </div>
+    <button type="submit" class="login-btn">Entrer →</button>
+    <div class="login-err" id="login-err"></div>
+  </form>
+</div>
+
+<!-- ADMIN VIEW -->
+<div class="admin-view" id="admin-view">
+  <div class="admin-shell">
+
+    <!-- LEFT QUEUE -->
+    <aside class="queue">
+      <div class="queue-header">
+        <div class="queue-title-row">
+          <div class="queue-title">File d'attente</div>
+          <div class="queue-count" id="queue-count">—</div>
+        </div>
+        <div class="queue-filters">
+          <button class="queue-filter on" data-filter="pending" onclick="setFilter('pending')">À valider</button>
+          <button class="queue-filter" data-filter="approved" onclick="setFilter('approved')">Approuvées</button>
+          <button class="queue-filter" data-filter="rejected" onclick="setFilter('rejected')">Rejetées</button>
+          <button class="queue-filter" data-filter="all" onclick="setFilter('all')">Toutes</button>
+        </div>
+      </div>
+      <div class="queue-list" id="queue-list">
+        <div class="queue-empty">Chargement…</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT DETAIL -->
+    <section class="detail" id="detail">
+      <div class="detail-empty">
+        <div class="detail-empty-icon">←</div>
+        <div class="detail-empty-text">Sélectionnez une soumission</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- IMAGE MODAL -->
+<div class="img-modal" id="img-modal" onclick="closeImgModal()">
+  <img id="img-modal-src" src="">
+</div>
+
+<script>
+const API_BASE='https://soirfr-scraper.vercel.app';
+
+let currentFilter='pending';
+let submissions=[];
+let selectedId=null;
+let dirty=false;  // unsaved changes flag
+
+// ── LOGIN ──
+async function login(e){
+  if(e)e.preventDefault();
+  const pwd=document.getElementById('pwd').value;
+  const err=document.getElementById('login-err');
+  err.classList.remove('show');
+  if(!pwd){return;}
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({password:pwd})
+    });
+    if(!r.ok){
+      const d=await r.json().catch(()=>({}));
+      err.textContent=d.error||'Mot de passe incorrect';
+      err.classList.add('show');
+      return;
+    }
+    enterAdmin();
+  }catch(ex){
+    err.textContent='Erreur de connexion';
+    err.classList.add('show');
+  }
+}
+
+async function logout(){
+  try{
+    await fetch(`${API_BASE}/api/admin/logout`,{method:'POST',credentials:'include'});
+  }catch{}
+  document.getElementById('admin-view').classList.remove('show');
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('logout-btn').style.display='none';
+  document.getElementById('pwd').value='';
+}
+
+function enterAdmin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-view').classList.add('show');
+  document.getElementById('logout-btn').style.display='inline';
+  loadQueue();
+}
+
+// ── LOAD QUEUE ──
+async function loadQueue(){
+  const list=document.getElementById('queue-list');
+  list.innerHTML='<div class="queue-empty"><span class="loading-pulse"></span> Chargement…</div>';
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/list?status=${currentFilter}`,{
+      credentials:'include'
+    });
+    if(r.status===401){
+      // Session expired
+      document.getElementById('admin-view').classList.remove('show');
+      document.getElementById('login-screen').style.display='flex';
+      return;
+    }
+    if(!r.ok)throw new Error('Failed to load');
+    const d=await r.json();
+    submissions=d.submissions||[];
+    renderQueue();
+  }catch(e){
+    list.innerHTML='<div class="queue-empty">Erreur de chargement</div>';
+  }
+}
+
+function renderQueue(){
+  const list=document.getElementById('queue-list');
+  document.getElementById('queue-count').textContent=submissions.length;
+  if(!submissions.length){
+    list.innerHTML='<div class="queue-empty">Aucune soumission</div>';
+    if(selectedId){selectedId=null;renderDetail();}
+    return;
+  }
+  list.innerHTML=submissions.map(s=>{
+    const statusClass=`qi-status-${s.status}`;
+    const statusLabel=s.status==='pending'?'À valider':s.status==='approved'?'Approuvée':s.status==='rejected'?'Rejetée':s.status;
+    const visionMark=s.vision_used?'<span class="qi-vision-mark">VISION ✓</span>':'';
+    const date=s.submitted_at?new Date(s.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):'';
+    const time=s.submitted_at?new Date(s.submitted_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const title=s.title||'(sans titre)';
+    const where=[s.city,s.postal_code].filter(Boolean).join(' · ')||'—';
+    return `<div class="queue-item ${selectedId===s.id?'active':''}" data-id="${s.id}" onclick="selectSubmission(${s.id})">
+      <div class="qi-body">
+        <div class="qi-status">
+          <span class="${statusClass}">${statusLabel}</span>
+          ${visionMark}
+        </div>
+        <div class="qi-title">${escapeHtml(title)}</div>
+        <div class="qi-meta">${escapeHtml(where)}</div>
+        <div class="qi-sub">par ${escapeHtml(s.submitter_name||'?')} · ${date} ${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── FILTER ──
+function setFilter(f){
+  if(dirty&&!confirm('Modifications non enregistrées. Continuer sans sauvegarder ?'))return;
+  currentFilter=f;
+  dirty=false;
+  document.querySelectorAll('.queue-filter').forEach(b=>{
+    b.classList.toggle('on',b.dataset.filter===f);
+  });
+  loadQueue();
+}
+
+// ── SELECT ──
+function selectSubmission(id){
+  if(dirty&&!confirm('Modifications non enregistrées. Continuer sans sauvegarder ?'))return;
+  selectedId=id;
+  dirty=false;
+  renderQueue();
+  renderDetail();
+}
+
+// ── RENDER DETAIL ──
+function renderDetail(){
+  const wrap=document.getElementById('detail');
+  if(!selectedId){
+    wrap.innerHTML=`<div class="detail-empty">
+      <div class="detail-empty-icon">←</div>
+      <div class="detail-empty-text">Sélectionnez une soumission</div>
+    </div>`;
+    return;
+  }
+  const s=submissions.find(x=>x.id===selectedId);
+  if(!s){wrap.innerHTML='<div class="detail-empty"><div class="detail-empty-text">Introuvable</div></div>';return;}
+
+  // Find first image for header preview
+  const firstImage=Array.isArray(s.uploaded_files)?
+    s.uploaded_files.find(f=>f.content_type?.startsWith('image/')):null;
+  const headerImg=firstImage?.signed_url||s.image_url||null;
+
+  // Helpers
+  const submittedDate=s.submitted_at?new Date(s.submitted_at).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}):'';
+
+  // File list HTML
+  let filesHtml='';
+  if(Array.isArray(s.uploaded_files)&&s.uploaded_files.length){
+    filesHtml=`<div class="detail-files">${s.uploaded_files.map(f=>{
+      const icon=f.content_type?.startsWith('image/')?'🖼️':f.content_type==='application/pdf'?'📄':'📎';
+      const name=f.original_name||f.path?.split('/').pop()||'fichier';
+      const url=f.signed_url||'#';
+      return `<a class="file-thumb" href="${url}" target="_blank" rel="noopener">
+        <span class="file-thumb-icon">${icon}</span>
+        <span>${escapeHtml(name.substring(0,40))}${name.length>40?'…':''}</span>
+      </a>`;
+    }).join('')}</div>`;
+  }
+
+  // Datetime-local needs YYYY-MM-DDTHH:MM (no seconds, no timezone)
+  const dtFmt=(iso)=>{
+    if(!iso)return '';
+    const d=new Date(iso);
+    if(isNaN(d))return '';
+    const pad=n=>String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const visionTag=s.vision_used?'<span class="detail-vision-tag">Données extraites par Vision</span>':'';
+  const statusTag=`<span class="detail-status-tag ${s.status}">${s.status==='pending'?'À valider':s.status==='approved'?'Approuvée':s.status==='rejected'?'Rejetée':s.status}</span>`;
+
+  const readonly=s.status!=='pending'?'disabled':'';
+
+  wrap.innerHTML=`
+    <div class="detail-header">
+      ${headerImg
+        ?`<div class="detail-image-wrap"><img src="${escapeAttr(headerImg)}" onclick="openImgModal('${escapeAttr(headerImg)}')"></div>`
+        :`<div class="detail-image-wrap empty">📎</div>`}
+      <div class="detail-meta">
+        <div class="detail-id-row">
+          <span class="detail-id">#${s.id}</span>
+          ${statusTag}
+          <span class="detail-submitted-at">${submittedDate}</span>
+        </div>
+        <div class="detail-submitter">${escapeHtml(s.submitter_name||'?')}</div>
+        <div class="detail-submitter-meta">
+          <a href="mailto:${escapeAttr(s.submitter_email||'')}">${escapeHtml(s.submitter_email||'')}</a>
+          ${s.submitter_phone?`· ${escapeHtml(s.submitter_phone)}`:''}
+          ${s.submitter_org?`<br>${escapeHtml(s.submitter_org)}`:''}
+        </div>
+        ${visionTag}
+      </div>
+    </div>
+
+    ${filesHtml}
+
+    <div class="form-section-label">Événement</div>
+    <div class="form-grid">
+      <div class="form-field">
+        <div class="form-label">Titre</div>
+        <input type="text" class="form-input" id="f-title" value="${escapeAttr(s.title||'')}" oninput="markDirty()" ${readonly}>
+      </div>
+
+      <div class="form-field">
+        <div class="form-label">Description</div>
+        <textarea class="form-textarea" id="f-description" oninput="markDirty()" ${readonly}>${escapeHtml(s.description||'')}</textarea>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-field">
+          <div class="form-label">Début</div>
+          <input type="datetime-local" class="form-input" id="f-starts_at" value="${dtFmt(s.starts_at)}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Fin</div>
+          <input type="datetime-local" class="form-input" id="f-ends_at" value="${dtFmt(s.ends_at)}" oninput="markDirty()" ${readonly}>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="form-label">Catégorie</div>
+        <select class="form-select" id="f-category" onchange="markDirty()" ${readonly}>
+          ${renderCategoryOptions(s.category)}
+        </select>
+      </div>
+
+      <div class="form-section-label">Lieu</div>
+
+      <div class="form-field">
+        <div class="form-label">Nom du lieu</div>
+        <input type="text" class="form-input" id="f-venue_name" value="${escapeAttr(s.venue_name||'')}" oninput="markDirty()" ${readonly}>
+      </div>
+
+      <div class="form-field">
+        <div class="form-label">Adresse</div>
+        <input type="text" class="form-input" id="f-address" value="${escapeAttr(s.address||'')}" oninput="markDirty()" ${readonly}>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-field">
+          <div class="form-label">Code postal</div>
+          <input type="text" class="form-input" id="f-postal_code" value="${escapeAttr(s.postal_code||'')}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Ville</div>
+          <input type="text" class="form-input" id="f-city" value="${escapeAttr(s.city||'')}" oninput="markDirty()" ${readonly}>
+        </div>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-field">
+          <div class="form-label">Latitude <span class="form-vision-mark">si vide, géocodé à l'approbation</span></div>
+          <input type="number" step="any" class="form-input" id="f-lat" value="${s.lat||''}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Longitude</div>
+          <input type="number" step="any" class="form-input" id="f-lng" value="${s.lng||''}" oninput="markDirty()" ${readonly}>
+        </div>
+      </div>
+
+      <div class="form-section-label">Tarif</div>
+
+      <div class="form-row three">
+        <div class="form-field">
+          <div class="form-label">Prix min (€)</div>
+          <input type="number" step="0.01" class="form-input" id="f-price_min" value="${s.price_min||''}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Prix max (€)</div>
+          <input type="number" step="0.01" class="form-input" id="f-price_max" value="${s.price_max||''}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Gratuit</div>
+          <label class="form-check"><input type="checkbox" id="f-is_free" ${s.is_free?'checked':''} onchange="markDirty()" ${readonly}> Oui</label>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="form-label">Tarif (texte)</div>
+        <input type="text" class="form-input" id="f-price_text" value="${escapeAttr(s.price_text||'')}" oninput="markDirty()" ${readonly}>
+      </div>
+
+      <div class="form-section-label">Liens</div>
+
+      <div class="form-row two">
+        <div class="form-field">
+          <div class="form-label">Site source</div>
+          <input type="url" class="form-input" id="f-source_url" value="${escapeAttr(s.source_url||'')}" oninput="markDirty()" ${readonly}>
+        </div>
+        <div class="form-field">
+          <div class="form-label">Lien billetterie</div>
+          <input type="url" class="form-input" id="f-booking_url" value="${escapeAttr(s.booking_url||'')}" oninput="markDirty()" ${readonly}>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="form-label">Notes de modération <span class="form-vision-mark">privé</span></div>
+        <textarea class="form-textarea" id="f-moderator_notes" oninput="markDirty()" ${readonly}>${escapeHtml(s.moderator_notes||'')}</textarea>
+      </div>
+
+    </div>
+
+    <div class="action-bar">
+      <div class="action-status" id="action-status">${s.status==='pending'?'Soumission en attente':s.status==='approved'?'Déjà publiée · Événement #'+(s.approved_event_id||'?'):'Rejetée'}</div>
+      ${s.status==='pending'?`
+        <button class="action-btn save" onclick="saveEdits()">Enregistrer</button>
+        <button class="action-btn reject" onclick="rejectSubmission()">Rejeter</button>
+        <button class="action-btn approve" onclick="approveSubmission()">Approuver & publier →</button>
+      `:''}
+    </div>
+  `;
+}
+
+function renderCategoryOptions(current){
+  const cats=[
+    ['','— Choisir —'],
+    ['musique','🎵 Musique'],
+    ['cinema','🎬 Cinéma'],
+    ['theatre','🎭 Spectacles'],
+    ['expo','🖼 Expos'],
+    ['gastronomie','🥖 Gastronomie'],
+    ['degustation','🍷 Dégustations'],
+    ['brocante','🏺 Brocantes'],
+    ['marche','🥦 Marchés'],
+    ['enfants','🧸 Enfants'],
+    ['sport','⚽ Sport'],
+    ['nature','🌿 Nature'],
+    ['portes-ouvertes','🚪 Portes ouvertes'],
+    ['fete','🎉 Fêtes'],
+    ['patrimoine','🏰 Patrimoine'],
+    ['ateliers','🎨 Ateliers']
+  ];
+  return cats.map(([v,l])=>`<option value="${v}" ${v===(current||'')?'selected':''}>${l}</option>`).join('');
+}
+
+// ── EDIT TRACKING ──
+function markDirty(){
+  dirty=true;
+  const el=document.getElementById('action-status');
+  if(el){el.textContent='Modifications non enregistrées';el.classList.add('unsaved');}
+}
+function clearDirty(){
+  dirty=false;
+  const el=document.getElementById('action-status');
+  if(el){el.classList.remove('unsaved');}
+}
+
+// ── COLLECT FIELDS ──
+function collectFields(){
+  const fields={};
+  const ids=['title','description','starts_at','ends_at','category','venue_name','address',
+             'postal_code','city','lat','lng','price_text','price_min','price_max',
+             'source_url','booking_url','moderator_notes'];
+  ids.forEach(id=>{
+    const el=document.getElementById('f-'+id);
+    if(!el)return;
+    let v=el.value;
+    if(['lat','lng','price_min','price_max'].includes(id)){
+      v=v===''?null:parseFloat(v);
+      if(isNaN(v))v=null;
+    }
+    // datetime-local sends "YYYY-MM-DDTHH:MM" — leave as is for backend
+    fields[id]=v===''?null:v;
+  });
+  const freeEl=document.getElementById('f-is_free');
+  if(freeEl)fields.is_free=freeEl.checked;
+  return fields;
+}
+
+// ── SAVE ──
+async function saveEdits(){
+  const fields=collectFields();
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/update`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({id:selectedId,fields})
+    });
+    if(!r.ok){
+      const d=await r.json().catch(()=>({}));
+      toast(d.error||'Erreur d\'enregistrement','error');
+      return;
+    }
+    const d=await r.json();
+    // Update local copy
+    const idx=submissions.findIndex(x=>x.id===selectedId);
+    if(idx>=0)submissions[idx]={...submissions[idx],...d.row};
+    clearDirty();
+    toast('Enregistré','success');
+  }catch(e){
+    toast('Erreur d\'enregistrement','error');
+  }
+}
+
+// ── APPROVE ──
+async function approveSubmission(){
+  // Save edits first if dirty
+  if(dirty){
+    await saveEdits();
+    if(dirty)return;  // save failed
+  }
+  if(!confirm('Approuver cette soumission et la publier sur l\'agenda ?'))return;
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/approve`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({id:selectedId})
+    });
+    if(!r.ok){
+      const d=await r.json().catch(()=>({}));
+      toast(d.error||'Échec de la publication','error');
+      return;
+    }
+    const d=await r.json();
+    toast('Publié · Événement #'+d.event_id,'success');
+    await loadQueue();
+    selectedId=null;
+    renderDetail();
+  }catch(e){
+    toast('Erreur de publication','error');
+  }
+}
+
+// ── REJECT ──
+async function rejectSubmission(){
+  const reason=prompt('Raison du rejet (optionnel, pour vos notes) :');
+  if(reason===null)return;  // cancelled
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/reject`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({id:selectedId,reason:reason||null})
+    });
+    if(!r.ok){toast('Erreur','error');return;}
+    toast('Rejetée','success');
+    await loadQueue();
+    selectedId=null;
+    renderDetail();
+  }catch(e){
+    toast('Erreur','error');
+  }
+}
+
+// ── TOAST ──
+let toastTimer=null;
+function toast(msg,kind){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show '+(kind||'');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.classList.remove('show');},2400);
+}
+
+// ── IMAGE MODAL ──
+function openImgModal(src){
+  const m=document.getElementById('img-modal');
+  document.getElementById('img-modal-src').src=src;
+  m.classList.add('show');
+}
+function closeImgModal(){
+  document.getElementById('img-modal').classList.remove('show');
+}
+
+// ── ESCAPE ──
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function escapeAttr(s){return escapeHtml(s);}
+
+// ── INIT ──
+// Try to load queue — if cookie valid we go straight in, otherwise show login
+(async function(){
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/list?status=pending`,{credentials:'include'});
+    if(r.ok){
+      const d=await r.json();
+      submissions=d.submissions||[];
+      enterAdmin();
+    }
+  }catch(e){
+    // ignore — login screen shows by default
+  }
+})();
+</script>
+
+</body>
+</html>
