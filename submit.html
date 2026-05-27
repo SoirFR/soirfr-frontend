@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soumettre un événement — SoirFR</title>
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.soirfr.com/submit.html">
+<meta property="og:title" content="Soumettre un événement — SoirFR">
+<meta property="og:description" content="Partagez votre événement, festival, brocante ou concert. Uploadez une affiche ou remplissez le formulaire.">
+<meta property="og:image" content="https://www.soirfr.com/preview.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="SoirFR">
+
+<meta name="description" content="Soumettez votre événement à SoirFR. Uploadez une affiche ou remplissez le formulaire.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#F0EAD8;--ink:#111009;--rouge:#C2321F;--cobalt:#1B2D4A;--dust:#7A7060;
+  --border:rgba(17,16,9,0.13);--softborder:rgba(17,16,9,0.08);
+  --fc:'Barlow Condensed','Arial Narrow',sans-serif;
+  --fb:'Barlow',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--fb);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  position:relative;
+}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  background:var(--cream);
+  border-bottom:1px solid var(--border);
+  padding:18px 36px 16px 64px;
+  position:relative;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+}
+/* Side stripes — mini version of main site */
+.page-stripes{
+  position:absolute;left:0;top:0;bottom:0;width:28px;
+  display:flex;flex-direction:row;gap:4px;padding:0 6px;
+  border-right:1px solid rgba(17,16,9,0.06);
+}
+.page-stripes span{display:block;height:100%;background:var(--rouge);}
+.page-stripes span:nth-child(1){width:5px;}
+.page-stripes span:nth-child(2){width:3px;}
+.page-stripes span:nth-child(3){width:2px;}
+.page-stripes span:nth-child(4){width:1px;}
+
+.header-logo{display:flex;align-items:center;gap:16px;}
+.wordmark{
+  font-family:var(--fc);font-weight:900;
+  font-size:42px;line-height:0.9;letter-spacing:-0.02em;
+  color:var(--ink);text-transform:uppercase;
+  text-decoration:none;
+}
+.wordmark .FR{color:var(--rouge);}
+.header-back{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dust);text-decoration:none;
+  display:flex;align-items:center;gap:6px;
+  transition:color 0.15s;
+}
+.header-back:hover{color:var(--rouge);}
+
+/* ── MAIN ── */
+.page-main{
+  max-width:720px;
+  margin:0 auto;
+  padding:48px 24px 60px;
+}
+
+.page-title{
+  font-family:var(--fc);font-weight:900;
+  font-size:68px;line-height:0.95;
+  letter-spacing:-0.02em;
+  color:var(--ink);text-transform:uppercase;
+  margin-bottom:16px;
+}
+.page-title .accent{color:var(--rouge);}
+
+.page-intro{
+  font-family:var(--fb);font-weight:300;font-style:italic;
+  font-size:18px;line-height:1.5;
+  color:var(--ink);
+  max-width:560px;
+  margin-bottom:48px;
+}
+.page-intro strong{font-weight:500;font-style:normal;}
+
+/* ── SECTION ── */
+.section{
+  margin-bottom:40px;
+}
+.section-label{
+  font-family:var(--fc);font-weight:800;
+  font-size:14px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ink);
+  padding-bottom:8px;
+  border-bottom:2px solid var(--rouge);
+  display:inline-block;
+  margin-bottom:20px;
+}
+.section-hint{
+  font-family:var(--fb);font-weight:300;
+  font-size:14px;color:var(--dust);line-height:1.5;
+  margin-bottom:16px;
+}
+
+/* ── FORM FIELDS ── */
+.field{
+  margin-bottom:16px;
+}
+.field-row{
+  display:grid;gap:14px;
+}
+.field-row.two{grid-template-columns:1fr 1fr;}
+.field-row.three{grid-template-columns:2fr 1fr 1fr;}
+@media(max-width:560px){
+  .field-row.two,.field-row.three{grid-template-columns:1fr;}
+}
+
+.field-label{
+  font-family:var(--fc);font-weight:700;
+  font-size:11px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--dust);
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;
+}
+.field-label .req{color:var(--rouge);}
+.field-label .opt{
+  font-family:var(--fb);font-weight:300;font-size:10px;
+  letter-spacing:0.05em;text-transform:none;
+  color:var(--dust);font-style:italic;
+  margin-left:auto;
+}
+
+.input,.select,.textarea{
+  width:100%;
+  background:white;
+  border:1px solid var(--border);
+  border-radius:0;
+  padding:11px 14px;
+  font-family:var(--fb);font-size:15px;font-weight:400;
+  color:var(--ink);
+  outline:none;
+  transition:border-color 0.15s,background 0.15s;
+}
+.input:focus,.select:focus,.textarea:focus{
+  border-color:var(--rouge);
+  background:#FFFEFA;
+}
+.select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23111009' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  cursor:pointer;padding-right:36px;
+}
+.textarea{
+  resize:vertical;min-height:90px;
+  font-family:var(--fb);line-height:1.5;
+}
+
+/* ── UPLOAD DROPZONE ── */
+.dropzone{
+  border:2px dashed var(--border);
+  background:white;
+  padding:36px 24px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+}
+.dropzone:hover,.dropzone.dragging{
+  border-color:var(--rouge);
+  background:#FFFEFA;
+}
+.dropzone.dragging{
+  border-style:solid;
+}
+.dz-icon{
+  font-size:42px;
+  margin-bottom:12px;
+  display:block;
+  opacity:0.5;
+}
+.dz-primary{
+  font-family:var(--fc);font-weight:800;
+  font-size:18px;letter-spacing:0.04em;text-transform:uppercase;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.dz-secondary{
+  font-family:var(--fb);font-weight:300;font-style:italic;
+  font-size:14px;color:var(--dust);
+  margin-bottom:14px;
+}
+.dz-formats{
+  font-family:var(--fc);font-weight:700;
+  font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dust);
+}
+.file-input{
+  position:absolute;inset:0;
+  opacity:0;cursor:pointer;
+}
+
+/* ── FILE LIST ── */
+.file-list{
+  margin-top:12px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.file-chip{
+  display:flex;align-items:center;gap:12px;
+  background:white;
+  border:1px solid var(--border);
+  padding:10px 14px;
+}
+.file-chip-icon{
+  width:36px;height:36px;
+  background:var(--cream);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.file-chip-info{flex:1;min-width:0;}
+.file-chip-name{
+  font-family:var(--fb);font-weight:500;font-size:14px;
+  color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.file-chip-size{
+  font-family:var(--fc);font-size:10px;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--dust);
+  margin-top:2px;
+}
+.file-chip-remove{
+  background:transparent;border:none;cursor:pointer;
+  color:var(--dust);font-size:18px;
+  padding:4px 8px;
+  transition:color 0.15s;
+}
+.file-chip-remove:hover{color:var(--rouge);}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:14px;
+  margin:32px 0;
+}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{
+  font-family:var(--fc);font-weight:700;
+  font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--dust);
+}
+
+/* ── CHECKBOX ── */
+.check-row{
+  display:flex;align-items:flex-start;gap:10px;
+  margin:24px 0;
+  font-family:var(--fb);font-size:14px;line-height:1.5;
+  color:var(--ink);
+}
+.check-row input[type=checkbox]{
+  margin-top:3px;
+  width:16px;height:16px;
+  accent-color:var(--rouge);
+  flex-shrink:0;
+}
+
+/* ── SUBMIT BUTTON ── */
+.submit-btn{
+  width:100%;
+  background:var(--rouge);
+  color:white;
+  border:none;
+  padding:18px 24px;
+  font-family:var(--fc);font-weight:800;
+  font-size:16px;letter-spacing:0.22em;text-transform:uppercase;
+  cursor:pointer;
+  transition:background 0.15s,transform 0.05s;
+}
+.submit-btn:hover{background:#A82817;}
+.submit-btn:active{transform:translateY(1px);}
+.submit-btn:disabled{
+  background:var(--dust);cursor:not-allowed;
+}
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay{
+  position:fixed;inset:0;
+  background:rgba(240,234,216,0.85);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:1000;
+}
+.loading-overlay.show{display:flex;}
+.loading-inner{
+  background:var(--ink);
+  padding:24px 32px;
+  display:flex;align-items:center;gap:14px;
+  max-width:90vw;
+}
+.loading-dots{display:flex;gap:5px;}
+.loading-dot{
+  width:8px;height:8px;background:var(--rouge);border-radius:50%;
+  animation:ldot 1s ease infinite;
+}
+.loading-dot:nth-child(2){animation-delay:0.15s;}
+.loading-dot:nth-child(3){animation-delay:0.3s;}
+@keyframes ldot{
+  0%,100%{opacity:0.3;transform:scale(0.7);}
+  50%{opacity:1;transform:scale(1);}
+}
+.loading-text{
+  font-family:var(--fc);font-weight:700;
+  font-size:13px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--cream);
+}
+
+/* ── SUCCESS STATE ── */
+.success-block{
+  display:none;
+  text-align:left;
+  padding:48px 0;
+}
+.success-block.show{display:block;}
+.success-rule{
+  width:48px;height:3px;background:var(--rouge);
+  margin-bottom:24px;
+}
+.success-title{
+  font-family:var(--fc);font-weight:900;
+  font-size:48px;line-height:1;letter-spacing:-0.02em;
+  color:var(--ink);text-transform:uppercase;
+  margin-bottom:20px;
+}
+.success-body{
+  font-family:var(--fb);font-size:17px;line-height:1.6;
+  color:var(--ink);
+  max-width:520px;
+  margin-bottom:32px;
+}
+.success-email{font-weight:500;}
+.success-actions{
+  display:flex;gap:12px;flex-wrap:wrap;
+}
+.success-btn{
+  font-family:var(--fc);font-weight:700;
+  font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
+  padding:14px 24px;
+  text-decoration:none;
+  transition:all 0.15s;
+  cursor:pointer;border:1px solid;
+}
+.success-btn.primary{
+  background:var(--ink);color:var(--cream);
+  border-color:var(--ink);
+}
+.success-btn.primary:hover{background:var(--rouge);border-color:var(--rouge);}
+.success-btn.secondary{
+  background:transparent;color:var(--ink);
+  border-color:var(--ink);
+}
+.success-btn.secondary:hover{background:var(--ink);color:var(--cream);}
+.success-sig{
+  margin-top:32px;
+  font-family:var(--fb);font-style:italic;font-size:14px;
+  color:var(--dust);
+}
+
+/* ── ERROR ── */
+.error-msg{
+  display:none;
+  background:#FBEAE7;
+  border-left:3px solid var(--rouge);
+  padding:14px 16px;
+  font-family:var(--fb);font-size:14px;color:#7A1A0E;
+  margin-bottom:20px;
+}
+.error-msg.show{display:block;}
+
+/* ── PAGE FOOTER ── */
+.page-foot{
+  background:var(--ink);
+  padding:18px 36px 18px 64px;
+  display:flex;align-items:center;gap:18px;
+  position:relative;
+}
+.page-foot a{
+  font-family:var(--fc);font-size:12px;font-weight:700;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:rgba(240,234,216,0.55);text-decoration:none;
+  transition:color 0.15s;
+}
+.page-foot a:hover{color:var(--cream);}
+.page-foot a.primary{color:var(--rouge);}
+.page-foot-sep{width:1px;height:12px;background:rgba(255,255,255,0.18);}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  .page-header{padding:14px 16px 12px 44px;}
+  .wordmark{font-size:32px;}
+  .page-main{padding:32px 18px 48px;}
+  .page-title{font-size:46px;}
+  .page-intro{font-size:16px;margin-bottom:36px;}
+  .section{margin-bottom:32px;}
+  .dropzone{padding:28px 16px;}
+  .dz-icon{font-size:32px;}
+  .dz-primary{font-size:16px;}
+  .success-title{font-size:38px;}
+  .page-foot{padding:14px 16px 14px 44px;flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="page-stripes"><span></span><span></span><span></span><span></span></div>
+  <div class="header-logo">
+    <a href="/" class="wordmark">Soir<span class="FR">FR</span></a>
+  </div>
+  <a href="/" class="header-back">← Retour à l'agenda</a>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="page-main">
+
+  <!-- FORM VIEW -->
+  <div id="form-view">
+
+    <h1 class="page-title">Soumettre un <span class="accent">événement</span></h1>
+    <p class="page-intro">
+      Un concert dans votre village ? Une brocante de quartier ? Une expo dans une cave&nbsp;? <strong>SoirFR est un agenda local</strong> — vos contributions le rendent vivant. Uploadez une affiche, remplissez le formulaire, ou les deux.
+    </p>
+
+    <div class="error-msg" id="err-msg"></div>
+
+    <!-- ─────────── SECTION : VOS COORDONNÉES ─────────── -->
+    <section class="section">
+      <div class="section-label">Vos coordonnées</div>
+      <p class="section-hint">Pour qu'on puisse vous joindre si on a une question, et vous prévenir quand votre événement est en ligne.</p>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Nom <span class="req">*</span></div>
+          <input type="text" class="input" id="sub-name" placeholder="Prénom Nom" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <div class="field-label">Email <span class="req">*</span></div>
+          <input type="email" class="input" id="sub-email" placeholder="vous@exemple.com" autocomplete="email" required>
+        </div>
+      </div>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Téléphone <span class="opt">facultatif</span></div>
+          <input type="tel" class="input" id="sub-phone" placeholder="06 12 34 56 78" autocomplete="tel">
+        </div>
+        <div class="field">
+          <div class="field-label">Organisation <span class="opt">facultatif</span></div>
+          <input type="text" class="input" id="sub-org" placeholder="Mairie, association, lieu…" autocomplete="organization">
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── SECTION : AFFICHE ─────────── -->
+    <section class="section">
+      <div class="section-label">Avec une affiche</div>
+      <p class="section-hint">Glissez une affiche, un flyer, un PDF de programme — on lit le document et on remplit le reste. Vous pourrez tout vérifier après.</p>
+
+      <div class="dropzone" id="dropzone">
+        <span class="dz-icon">📎</span>
+        <div class="dz-primary">Glissez votre fichier ici</div>
+        <div class="dz-secondary">ou cliquez pour parcourir</div>
+        <div class="dz-formats">PDF · JPG · PNG · HEIC · WebP</div>
+        <input type="file" class="file-input" id="file-input"
+               accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,image/*,application/pdf"
+               multiple>
+      </div>
+
+      <div class="file-list" id="file-list"></div>
+    </section>
+
+    <!-- ─────────── DIVIDER ─────────── -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">ou / et</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ─────────── SECTION : DÉTAILS DE L'ÉVÉNEMENT ─────────── -->
+    <section class="section">
+      <div class="section-label">Détails de l'événement</div>
+
+      <div class="field">
+        <div class="field-label">Titre de l'événement</div>
+        <input type="text" class="input" id="ev-title" placeholder="Ex. Concert d'été à la Salle des Fêtes">
+      </div>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Date de début</div>
+          <input type="date" class="input" id="ev-date-start">
+        </div>
+        <div class="field">
+          <div class="field-label">Heure</div>
+          <input type="time" class="input" id="ev-time-start">
+        </div>
+      </div>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Date de fin <span class="opt">si différent</span></div>
+          <input type="date" class="input" id="ev-date-end">
+        </div>
+        <div class="field">
+          <div class="field-label">Heure de fin</div>
+          <input type="time" class="input" id="ev-time-end">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Catégorie</div>
+        <select class="select" id="ev-category">
+          <option value="">— Choisir une catégorie —</option>
+          <option value="musique">🎵 Musique</option>
+          <option value="cinema">🎬 Cinéma</option>
+          <option value="theatre">🎭 Spectacles</option>
+          <option value="expo">🖼 Expos</option>
+          <option value="gastronomie">🥖 Gastronomie</option>
+          <option value="degustation">🍷 Dégustations</option>
+          <option value="brocante">🏺 Brocantes</option>
+          <option value="marche">🥦 Marchés</option>
+          <option value="enfants">🧸 Enfants</option>
+          <option value="sport">⚽ Sport</option>
+          <option value="nature">🌿 Nature</option>
+          <option value="portes-ouvertes">🚪 Portes ouvertes</option>
+          <option value="fete">🎉 Fêtes</option>
+          <option value="patrimoine">🏰 Patrimoine</option>
+          <option value="ateliers">🎨 Ateliers</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Lieu (nom)</div>
+        <input type="text" class="input" id="ev-venue" placeholder="Ex. Théâtre des Copiaus, Place du Marché…">
+      </div>
+
+      <div class="field">
+        <div class="field-label">Adresse complète</div>
+        <input type="text" class="input" id="ev-address" placeholder="Numéro et rue">
+      </div>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Code postal</div>
+          <input type="text" class="input" id="ev-postal" placeholder="71150" inputmode="numeric" maxlength="5">
+        </div>
+        <div class="field">
+          <div class="field-label">Ville</div>
+          <input type="text" class="input" id="ev-city" placeholder="Chagny">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Description <span class="opt">racontez en quelques mots</span></div>
+        <textarea class="textarea" id="ev-desc" placeholder="Une ligne ou deux pour donner envie…"></textarea>
+      </div>
+
+      <div class="field-row two">
+        <div class="field">
+          <div class="field-label">Tarif</div>
+          <input type="text" class="input" id="ev-price" placeholder="Gratuit, 5 €, à partir de 12 €…">
+        </div>
+        <div class="field">
+          <div class="field-label">Site / billetterie</div>
+          <input type="url" class="input" id="ev-url" placeholder="https://…">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─────────── CONSENT + SUBMIT ─────────── -->
+    <div class="check-row">
+      <input type="checkbox" id="sub-consent">
+      <label for="sub-consent">
+        Je confirme que les informations soumises sont exactes, et j'autorise SoirFR à les publier ainsi que toute image fournie.
+      </label>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+      Envoyer ma soumission →
+    </button>
+
+  </div>
+
+  <!-- SUCCESS VIEW -->
+  <div class="success-block" id="success-view">
+    <div class="success-rule"></div>
+    <h1 class="success-title" id="success-title">Merci !</h1>
+    <p class="success-body" id="success-body">
+      Votre soumission a bien été reçue.<br>
+      Nous validerons votre événement dans les 24&nbsp;heures<span id="success-email-line"></span>.
+    </p>
+    <div class="success-actions">
+      <a href="/" class="success-btn primary">← Retour à l'agenda</a>
+      <button class="success-btn secondary" onclick="resetForm()">Soumettre un autre événement</button>
+    </div>
+    <div class="success-sig">— L'équipe SoirFR</div>
+  </div>
+
+</main>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-inner">
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+    <div class="loading-text" id="loading-text">Envoi en cours</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="page-foot">
+  <div class="page-stripes"><span></span><span></span><span></span><span></span></div>
+  <a href="/" class="primary">← Retour à l'agenda</a>
+  <div class="page-foot-sep"></div>
+  <a href="mailto:bonjour@soirfr.com">Contact</a>
+</footer>
+
+<script>
+// Backend endpoint — when the scraper API is ready, this hits it
+const API_BASE='https://soirfr-scraper.vercel.app';
+const SUBMIT_ENDPOINT=`${API_BASE}/api/submit`;
+
+let attachedFiles=[];
+
+// ── FILE UPLOAD ──
+const dropzone=document.getElementById('dropzone');
+const fileInput=document.getElementById('file-input');
+const fileList=document.getElementById('file-list');
+
+['dragenter','dragover'].forEach(ev=>{
+  dropzone.addEventListener(ev,e=>{
+    e.preventDefault();e.stopPropagation();
+    dropzone.classList.add('dragging');
+  });
+});
+['dragleave','drop'].forEach(ev=>{
+  dropzone.addEventListener(ev,e=>{
+    e.preventDefault();e.stopPropagation();
+    dropzone.classList.remove('dragging');
+  });
+});
+dropzone.addEventListener('drop',e=>{
+  const files=Array.from(e.dataTransfer.files);
+  handleFiles(files);
+});
+fileInput.addEventListener('change',e=>{
+  const files=Array.from(e.target.files);
+  handleFiles(files);
+});
+
+function handleFiles(files){
+  // Max 5 files, 20MB each
+  const MAX_FILES=5, MAX_SIZE=20*1024*1024;
+  for(const f of files){
+    if(attachedFiles.length>=MAX_FILES){
+      showError(`Maximum ${MAX_FILES} fichiers.`);
+      break;
+    }
+    if(f.size>MAX_SIZE){
+      showError(`"${f.name}" dépasse 20 Mo.`);
+      continue;
+    }
+    attachedFiles.push(f);
+  }
+  renderFileList();
+  // Reset input so same file can be re-selected if removed
+  fileInput.value='';
+}
+
+function renderFileList(){
+  if(!attachedFiles.length){
+    fileList.innerHTML='';
+    return;
+  }
+  fileList.innerHTML=attachedFiles.map((f,i)=>{
+    const icon=f.type.startsWith('image/')?'🖼️':f.type==='application/pdf'?'📄':'📎';
+    const sizeKB=Math.round(f.size/1024);
+    const sizeDisplay=sizeKB>1000?`${(sizeKB/1024).toFixed(1)} MB`:`${sizeKB} KB`;
+    return `<div class="file-chip">
+      <div class="file-chip-icon">${icon}</div>
+      <div class="file-chip-info">
+        <div class="file-chip-name">${escapeHtml(f.name)}</div>
+        <div class="file-chip-size">${sizeDisplay}</div>
+      </div>
+      <button class="file-chip-remove" onclick="removeFile(${i})" type="button" aria-label="Retirer">×</button>
+    </div>`;
+  }).join('');
+}
+
+function removeFile(i){
+  attachedFiles.splice(i,1);
+  renderFileList();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// ── ERROR ──
+function showError(msg){
+  const el=document.getElementById('err-msg');
+  el.textContent=msg;
+  el.classList.add('show');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function clearError(){
+  const el=document.getElementById('err-msg');
+  el.classList.remove('show');
+  el.textContent='';
+}
+
+// ── LOADING ──
+function showLoading(text){
+  document.getElementById('loading-text').textContent=text||'Envoi en cours';
+  document.getElementById('loading').classList.add('show');
+}
+function hideLoading(){
+  document.getElementById('loading').classList.remove('show');
+}
+
+// ── SUBMIT ──
+async function submitForm(){
+  clearError();
+
+  // Required: name and email
+  const name=document.getElementById('sub-name').value.trim();
+  const email=document.getElementById('sub-email').value.trim();
+  if(!name){
+    showError("Merci d'indiquer votre nom.");
+    document.getElementById('sub-name').focus();
+    return;
+  }
+  if(!email){
+    showError("Merci d'indiquer votre adresse email.");
+    document.getElementById('sub-email').focus();
+    return;
+  }
+  // Basic email format check
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showError("Merci d'indiquer une adresse email valide.");
+    document.getElementById('sub-email').focus();
+    return;
+  }
+
+  const consent=document.getElementById('sub-consent').checked;
+  if(!consent){
+    showError("Merci de cocher la case de confirmation avant d'envoyer.");
+    return;
+  }
+
+  // Collect submitter info
+  const submitter={
+    name:name,
+    email:email,
+    phone:document.getElementById('sub-phone').value.trim()||null,
+    organization:document.getElementById('sub-org').value.trim()||null
+  };
+
+  // Collect event details
+  const dateStart=document.getElementById('ev-date-start').value;
+  const timeStart=document.getElementById('ev-time-start').value;
+  const dateEnd=document.getElementById('ev-date-end').value;
+  const timeEnd=document.getElementById('ev-time-end').value;
+  const startsAt=combineDateTime(dateStart,timeStart);
+  const endsAt=combineDateTime(dateEnd,timeEnd);
+
+  const eventData={
+    title:document.getElementById('ev-title').value.trim()||null,
+    starts_at:startsAt,
+    ends_at:endsAt,
+    category:document.getElementById('ev-category').value||null,
+    venue_name:document.getElementById('ev-venue').value.trim()||null,
+    address:document.getElementById('ev-address').value.trim()||null,
+    postal_code:document.getElementById('ev-postal').value.trim()||null,
+    city:document.getElementById('ev-city').value.trim()||null,
+    description:document.getElementById('ev-desc').value.trim()||null,
+    price_text:document.getElementById('ev-price').value.trim()||null,
+    source_url:document.getElementById('ev-url').value.trim()||null
+  };
+
+  // Need at least: a file OR a title OR a city — otherwise it's empty
+  const hasFile=attachedFiles.length>0;
+  const hasContent=eventData.title||eventData.city||eventData.venue_name;
+  if(!hasFile&&!hasContent){
+    showError("Ajoutez au moins une affiche, ou remplissez quelques champs (titre, lieu ou ville).");
+    return;
+  }
+
+  showLoading(hasFile?'Lecture du document…':'Envoi en cours');
+
+  try{
+    // Build FormData (handles files + JSON together)
+    const fd=new FormData();
+    fd.append('submitter',JSON.stringify(submitter));
+    fd.append('event',JSON.stringify(eventData));
+    attachedFiles.forEach((f,i)=>fd.append('files',f,f.name));
+
+    const r=await fetch(SUBMIT_ENDPOINT,{
+      method:'POST',
+      body:fd
+    });
+
+    if(!r.ok){
+      const txt=await r.text().catch(()=>'');
+      throw new Error(`Erreur ${r.status}: ${txt||'Échec de la soumission'}`);
+    }
+    const result=await r.json().catch(()=>({}));
+    hideLoading();
+    showSuccess(submitter.email);
+  }catch(err){
+    hideLoading();
+    console.error(err);
+    showError("Une erreur est survenue. Réessayez dans un instant, ou écrivez-nous à bonjour@soirfr.com.");
+  }
+}
+
+function combineDateTime(date,time){
+  if(!date)return null;
+  // If date but no time, default to 00:00 (full day event)
+  const t=time||'00:00';
+  // Build ISO-ish local string; backend will store as-is or normalize
+  return `${date}T${t}:00`;
+}
+
+// ── SUCCESS ──
+function showSuccess(email){
+  document.getElementById('form-view').style.display='none';
+  document.getElementById('success-view').classList.add('show');
+  // If they gave an email, personalize the confirmation
+  const line=document.getElementById('success-email-line');
+  if(email){
+    line.innerHTML=` et vous recevrez un email à <span class="success-email">${escapeHtml(email)}</span> dès qu'il sera publié`;
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm(){
+  // Clear all fields
+  document.querySelectorAll('#form-view input, #form-view textarea, #form-view select').forEach(el=>{
+    if(el.type==='checkbox')el.checked=false;
+    else el.value='';
+  });
+  attachedFiles=[];
+  renderFileList();
+  clearError();
+  document.getElementById('success-view').classList.remove('show');
+  document.getElementById('form-view').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>
