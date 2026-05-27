@@ -318,18 +318,32 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       <!-- QUAND — unified single control -->
       <div class="f-group">
         <div class="f-section-label" id="lbl-when">Quand ?</div>
-        <select class="f-select" id="when-sel" onchange="onWhenChange(this.value);if(userLat)doSearch(userLat,userLng,userLabel);">
+        <select class="f-select" id="when-sel" onchange="onWhenChange(this.value);if(userLat&&this.value!=='custom')doSearch(userLat,userLng,userLabel);">
           <option value="today"   id="opt-today">Aujourd'hui</option>
           <option value="weekend" id="opt-weekend">Ce week-end</option>
           <option value="week"    selected id="opt-week">Cette semaine</option>
           <option value="month"   id="opt-month">Ce mois</option>
-          <option value="3months" id="opt-3months">3 prochains mois</option>
           <option value="year"    id="opt-year">Toute l'année</option>
-          <option value="custom"  id="opt-custom">Date précise…</option>
+          <option value="custom"  id="opt-custom">Dates précises…</option>
         </select>
-        <!-- Hidden date picker — only shows when "Date précise" is selected -->
-        <input type="date" id="date-inp" class="f-select" 
-          style="background-image:none;display:none;margin-top:6px;">
+        <!-- Date range — only shows when "Dates précises" is selected -->
+        <div id="date-range-wrap" style="display:none;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex:1;">
+              <div style="font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dust);margin-bottom:4px;" id="lbl-from">Du</div>
+              <input type="date" id="date-from" class="f-select" style="background-image:none;padding:7px 10px;"
+                onchange="if(userLat)doSearch(userLat,userLng,userLabel);">
+            </div>
+            <div style="font-family:var(--fc);font-weight:700;font-size:16px;color:var(--dust);margin-top:18px;">→</div>
+            <div style="flex:1;">
+              <div style="font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dust);margin-bottom:4px;" id="lbl-to">Au</div>
+              <input type="date" id="date-to" class="f-select" style="background-image:none;padding:7px 10px;"
+                onchange="if(userLat)doSearch(userLat,userLng,userLabel);">
+            </div>
+          </div>
+        </div>
+        <!-- Hidden single date for compatibility -->
+        <input type="date" id="date-inp" style="display:none;">
       </div>
       <div class="f-group" style="display:none">
         <div class="f-label" id="lbl-where">Où ?</div>
@@ -433,8 +447,8 @@ let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',opt3months:'3 prochains mois',optYear:"Toute l'année",optCustom:'Date précise…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',opt3months:'Next 3 months',optYear:'This year',optCustom:'Specific date…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Ajouter un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',about:'À propos',partners:'Partenaires',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Add an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',about:'About',partners:'Partners',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
 const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🏰',patrimoine:'🏰',ateliers:'🎨',autre:'🖼'};
@@ -471,7 +485,6 @@ function setLang(l){
   document.getElementById('opt-weekend').textContent=t('optWeekend');
   document.getElementById('opt-week').textContent=t('optWeek');
   document.getElementById('opt-month').textContent=t('optMonth');
-  const o3=document.getElementById('opt-3months');if(o3)o3.textContent=t('opt3months');
   const oy=document.getElementById('opt-year');if(oy)oy.textContent=t('optYear');
   const oc=document.getElementById('opt-custom');if(oc)oc.textContent=t('optCustom');
   document.getElementById('zb-label').textContent=t('zoneBtn');
@@ -499,28 +512,37 @@ async function revGeo(lat,lng){
 }
 
 function onWhenChange(val){
-  const dp=document.getElementById('date-inp');
+  const wrap=document.getElementById('date-range-wrap');
+  const today=new Date().toISOString().split('T')[0];
   if(val==='custom'){
-    dp.style.display='block';
-    dp.value=dp.value||new Date().toISOString().split('T')[0];
+    wrap.style.display='block';
+    const df=document.getElementById('date-from');
+    const dt=document.getElementById('date-to');
+    if(!df.value) df.value=today;
+    if(!dt.value){
+      const nextWeek=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+      dt.value=nextWeek;
+    }
   } else {
-    dp.style.display='none';
-    dp.value='';
+    wrap.style.display='none';
   }
 }
 
 function dateRange(){
   const when=document.getElementById('when-sel').value;
-  const dateVal=document.getElementById('date-inp').value;
   const now=new Date(), today=now.toISOString().split('T')[0];
-  if(when==='custom'&&dateVal) return{from:dateVal,to:new Date(new Date(dateVal).getTime()+86400000).toISOString().split('T')[0]};
+  if(when==='custom'){
+    const df=document.getElementById('date-from')?.value;
+    const dt=document.getElementById('date-to')?.value;
+    if(df&&dt) return{from:df,to:new Date(new Date(dt).getTime()+86400000).toISOString().split('T')[0]};
+    if(df) return{from:df,to:new Date(new Date(df).getTime()+7*86400000).toISOString().split('T')[0]};
+  }
   if(when==='today') return{from:today,to:new Date(now.getTime()+86400000).toISOString().split('T')[0]};
   if(when==='weekend'){const day=now.getDay(),dif=day<=5?6-day:0;const sat=new Date(now.getTime()+dif*86400000);return{from:sat.toISOString().split('T')[0],to:new Date(sat.getTime()+2*86400000).toISOString().split('T')[0]};}
   if(when==='week') return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
   if(when==='month') return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
-  if(when==='3months') return{from:today,to:new Date(now.getTime()+90*86400000).toISOString().split('T')[0]};
   if(when==='year') return{from:today,to:new Date(now.getTime()+365*86400000).toISOString().split('T')[0]};
-  return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
+  return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
 }
 
 async function fetchEvs(lat,lng,km,from,to,catsArr){
@@ -567,14 +589,30 @@ async function doSearch(oLat,oLng,oLabel){
 
 function searchInView(){
   if(!map)return;
-  const c=map.getCenter();
+  const center=map.getCenter();
   const km=parseFloat(document.getElementById('radius-range').value)||25;
   const{from,to}=dateRange();
-  // No loading overlay for background pan searches — avoids the flash
-  fetchEvs(c.lat,c.lng,km,from,to,cats).then(evs=>{
+  // Uses current QUAND + CATEGORIES from sidebar — map pan respects all filters
+  fetchEvs(center.lat,center.lng,km,from,to,cats).then(evs=>{
     allEvs=evs;
+    userLat=center.lat;
+    userLng=center.lng;
     renderMapPinsInPlace(evs);
     updateDrawerWithVisible();
+    // Update OU field with reverse geocoded location
+    revGeo(center.lat,center.lng).then(label=>{
+      if(label){
+        userLabel=label;
+        const si=document.getElementById('addr-input-sidebar');
+        if(si)si.value=label;
+        document.getElementById('addr-input').value=label;
+        const tl=document.getElementById('topbar-location');
+        if(tl)tl.textContent=label;
+        const tr=document.getElementById('topbar-radius');
+        if(tr)tr.textContent='· '+km+' km';
+        document.getElementById('dt-loc').textContent=label;
+      }
+    });
   }).catch(()=>{});
 }
 
@@ -611,22 +649,12 @@ function renderMapPins(evs){
       zoomToBoundsOnClick:false,spiderfyOnMaxZoom:false,showCoverageOnHover:false,
     maxClusterRadius:40
     });
-    // Cluster click → zoom in or show list
+    // Cluster click — always zoom in smoothly
   clusterGroup.on('clusterclick', function(e) {
+    suppressMove = true;
     const zoom = map.getZoom();
-    if (zoom < 13) {
-      suppressMove = true;
-      map.setView(e.latlng, zoom + 2, {animate: true});
-      setTimeout(() => { suppressMove = false; }, 1500);
-    } else {
-      const markers = e.layer.getAllChildMarkers();
-      const locEvents = markers.map(m => allEvs[m._soirfr_idx]).filter(Boolean);
-      if (locEvents.length) {
-        if (!drawerOpen) toggleDrawer();
-        renderDrawerList(locEvents);
-        updateDrawerTab(locEvents, locEvents[0]?.city || userLabel);
-      }
-    }
+    map.setView(e.latlng, Math.min(zoom + 2, 16), {animate: true, duration: 0.5});
+    setTimeout(() => { suppressMove = false; }, 1500);
   });
   map.addLayer(clusterGroup);
   } else {
@@ -880,6 +908,12 @@ function selectAddr(label,lat,lng,source){
 
 async function init(){
   // date-inp is hidden until user selects 'Date précise'
+  // Open drawer by default
+  drawerOpen = true;
+  document.getElementById('drawer-list').classList.add('open');
+  document.getElementById('dt-arrow').classList.add('up');
+  const ttxt = document.getElementById('dt-toggle-txt');
+  if (ttxt) ttxt.textContent = t('hideList');
   document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
   map=L.map('map',{zoomControl:false}).setView([46.8,2.3],6);
