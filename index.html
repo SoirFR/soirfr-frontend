@@ -693,21 +693,22 @@ function renderMapPins(evs){
   if(userLat&&userLng)bounds.push([userLat,userLng]);
   evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
   suppressMove=true;
-  const drawerH = drawerOpen ? 210 : 0;
+  // Get actual drawer height dynamically
+  const listEl=document.getElementById('drawer-list');
+  const tabEl=document.getElementById('drawer-tab');
+  const drawerH=(drawerOpen&&listEl?listEl.offsetHeight:0)+(tabEl?tabEl.offsetHeight:54);
+  const padBottom=drawerH+20;
   if(bounds.length>1){
     map.fitBounds(bounds,{
-      paddingTopLeft:[50,50],
-      paddingBottomRight:[50, 50 + drawerH],
+      paddingTopLeft:[50,10],
+      paddingBottomRight:[50,padBottom],
       maxZoom:13
     });
   } else if(userLat){
     map.setView([userLat,userLng],12);
+    setTimeout(()=>map.panBy([0,-(drawerH/2)],{animate:false}),300);
   }
-  // After fitBounds settles, pan up by half drawer height so visual center is correct
-  setTimeout(()=>{
-    if(drawerH > 0) map.panBy([0, -(drawerH/2)], {animate:false});
-    suppressMove=false;
-  }, 600);
+  setTimeout(()=>{suppressMove=false;},1000);
 
   // Update drawer to show visible events
   updateDrawerWithVisible();
@@ -949,7 +950,12 @@ async function init(){
   if (ttxt) ttxt.textContent = t('hideList');
   document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
-  map=L.map('map',{zoomControl:false}).setView([46.8,2.3],6);
+  map=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.8,2.3],6);
+  // Set map padding so Leaflet centers within visible area above drawer
+  function updateMapPadding(){
+    const drawerH = drawerOpen ? (document.getElementById('drawer-list').offsetHeight + 54) : 54;
+    map.setPadding ? map.setPadding({bottom: drawerH}) : null;
+  }
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19,
     subdomains:'abcd'
