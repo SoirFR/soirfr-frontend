@@ -37,6 +37,12 @@
   --cream:#F0EAD8;--ink:#111009;--rouge:#C2321F;--cobalt:#1B2D4A;--dust:#7A7060;
   --border:rgba(17,16,9,0.13);--sidebar:340px;--hdr:56px;--bot:54px;
   --fc:'Barlow Condensed','Arial Narrow',sans-serif;--fb:'Barlow',sans-serif;
+  --cat-musique:#F2B705;--cat-cinema:#0077A8;--cat-theatre:#8E7CC3;
+  --cat-expo:#009688;--cat-gastronomie:#FF6A00;--cat-degustation:#B3122B;
+  --cat-brocante:#D95F2B;--cat-marche:#7DA32D;--cat-enfants:#F6AFC8;
+  --cat-sport:#8CC9F0;--cat-nature:#2E7D32;--cat-portes-ouvertes:#E9B100;
+  --cat-fete:#FF3D55;--cat-patrimoine:#C8A76A;--cat-ateliers:#008C8C;
+  --cat-default:#E23D28;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -90,20 +96,35 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   display:flex;flex-wrap:wrap;gap:6px;
 }
 .f-cat{
-  background:transparent;
+  background:#FAF6EC;
   border:1.5px solid var(--border);
   border-radius:24px;
-  padding:6px 14px;
+  padding:6px 13px 6px 6px;
   font-family:var(--fc);font-size:12px;font-weight:700;
   letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--dust);cursor:pointer;
+  color:var(--ink);cursor:pointer;
   transition:all 0.15s;
-  display:flex;align-items:center;gap:5px;
+  display:flex;align-items:center;gap:8px;
   white-space:nowrap;
   flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(17,16,9,0.13), 0 4px 9px rgba(17,16,9,0.08);
 }
-.f-cat:hover{border-color:var(--rouge);color:var(--rouge);}
-.f-cat.on{background:var(--rouge);color:white;border-color:var(--rouge);}
+.f-cat .ci{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;line-height:1;
+  background:color-mix(in srgb, var(--cc) 18%, transparent);
+}
+.f-cat:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 4px rgba(17,16,9,0.16), 0 6px 13px rgba(17,16,9,0.1);}
+.f-cat:active{transform:translateY(1px);box-shadow:inset 0 1px 2px rgba(17,16,9,0.18), 0 1px 1px rgba(17,16,9,0.1);}
+.f-cat.on{
+  background:color-mix(in srgb, var(--cc) 13%, #FAF6EC);
+  border-color:var(--cc);
+  color:var(--cc);
+}
+.f-cat.on .ci{background:color-mix(in srgb, var(--cc) 30%, transparent);}
+.f-cat[data-cat=""]{padding-left:13px;}
+.f-cat[data-cat=""].on{background:var(--rouge);border-color:var(--rouge);color:#fff;}
 .f-section-label{
   font-family:var(--fc);font-weight:800;font-size:17px;
   letter-spacing:0.1em;text-transform:uppercase;
@@ -162,9 +183,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
 /* ── EVENT PINS ── */
 .map-pin{
-  width:14px;height:14px;background:var(--rouge);border-radius:50%;
+  width:14px;height:14px;background:var(--pc,var(--rouge));border-radius:50%;
   border:2px solid white;
-  box-shadow:0 2px 6px rgba(194,50,31,0.4);
+  box-shadow:0 2px 6px rgba(17,16,9,0.35);
   cursor:pointer;
   transition:all 0.15s;
 }
@@ -377,21 +398,21 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         <div class="f-section-label" id="lbl-cats">Catégories</div>
         <div class="f-cats">
           <button class="f-cat on" data-cat="" onclick="pickCat(this,'')"><span class="cl" id="cat-all">Toutes</span></button>
-          <button class="f-cat" data-cat="musique" onclick="pickCat(this,'musique')">🎵 <span class="cl">Musique</span></button>
-          <button class="f-cat" data-cat="cinema" onclick="pickCat(this,'cinema')">🎬 <span class="cl">Cinéma</span></button>
-          <button class="f-cat" data-cat="theatre" onclick="pickCat(this,'theatre')">🎭 <span class="cl">Spectacles</span></button>
-          <button class="f-cat" data-cat="expo" onclick="pickCat(this,'expo')">🖼 <span class="cl">Expos</span></button>
-          <button class="f-cat" data-cat="gastronomie" onclick="pickCat(this,'gastronomie')">🥖 <span class="cl">Gastronomie</span></button>
-          <button class="f-cat" data-cat="degustation" onclick="pickCat(this,'degustation')">🍷 <span class="cl">Dégustations</span></button>
-          <button class="f-cat" data-cat="brocante" onclick="pickCat(this,'brocante')">🏺 <span class="cl">Brocantes</span></button>
-          <button class="f-cat" data-cat="marche" onclick="pickCat(this,'marche')">🥦 <span class="cl">Marchés</span></button>
-          <button class="f-cat" data-cat="enfants" onclick="pickCat(this,'enfants')">🧸 <span class="cl">Enfants</span></button>
-          <button class="f-cat" data-cat="sport" onclick="pickCat(this,'sport')">⚽ <span class="cl">Sport</span></button>
-          <button class="f-cat" data-cat="nature" onclick="pickCat(this,'nature')">🌿 <span class="cl">Nature</span></button>
-          <button class="f-cat" data-cat="portes-ouvertes" onclick="pickCat(this,'portes-ouvertes')">🚪 <span class="cl">Portes Ouvertes</span></button>
-          <button class="f-cat" data-cat="fete" onclick="pickCat(this,'fete')">🎉 <span class="cl">Fêtes</span></button>
-          <button class="f-cat" data-cat="patrimoine" onclick="pickCat(this,'patrimoine')">🏰 <span class="cl">Patrimoine</span></button>
-          <button class="f-cat" data-cat="ateliers" onclick="pickCat(this,'ateliers')">🎨 <span class="cl">Ateliers</span></button>
+          <button class="f-cat" data-cat="musique" onclick="pickCat(this,'musique')" style="--cc:var(--cat-musique)"><span class="ci"></span><span class="cl">Musique</span></button>
+          <button class="f-cat" data-cat="cinema" onclick="pickCat(this,'cinema')" style="--cc:var(--cat-cinema)"><span class="ci"></span><span class="cl">Cinéma</span></button>
+          <button class="f-cat" data-cat="theatre" onclick="pickCat(this,'theatre')" style="--cc:var(--cat-theatre)"><span class="ci"></span><span class="cl">Spectacles</span></button>
+          <button class="f-cat" data-cat="expo" onclick="pickCat(this,'expo')" style="--cc:var(--cat-expo)"><span class="ci"></span><span class="cl">Expos</span></button>
+          <button class="f-cat" data-cat="gastronomie" onclick="pickCat(this,'gastronomie')" style="--cc:var(--cat-gastronomie)"><span class="ci"></span><span class="cl">Gastronomie</span></button>
+          <button class="f-cat" data-cat="degustation" onclick="pickCat(this,'degustation')" style="--cc:var(--cat-degustation)"><span class="ci"></span><span class="cl">Dégustations</span></button>
+          <button class="f-cat" data-cat="brocante" onclick="pickCat(this,'brocante')" style="--cc:var(--cat-brocante)"><span class="ci"></span><span class="cl">Brocantes</span></button>
+          <button class="f-cat" data-cat="marche" onclick="pickCat(this,'marche')" style="--cc:var(--cat-marche)"><span class="ci"></span><span class="cl">Marchés</span></button>
+          <button class="f-cat" data-cat="enfants" onclick="pickCat(this,'enfants')" style="--cc:var(--cat-enfants)"><span class="ci"></span><span class="cl">Enfants</span></button>
+          <button class="f-cat" data-cat="sport" onclick="pickCat(this,'sport')" style="--cc:var(--cat-sport)"><span class="ci"></span><span class="cl">Sport</span></button>
+          <button class="f-cat" data-cat="nature" onclick="pickCat(this,'nature')" style="--cc:var(--cat-nature)"><span class="ci"></span><span class="cl">Nature</span></button>
+          <button class="f-cat" data-cat="portes-ouvertes" onclick="pickCat(this,'portes-ouvertes')" style="--cc:var(--cat-portes-ouvertes)"><span class="ci"></span><span class="cl">Portes Ouvertes</span></button>
+          <button class="f-cat" data-cat="fete" onclick="pickCat(this,'fete')" style="--cc:var(--cat-fete)"><span class="ci"></span><span class="cl">Fêtes</span></button>
+          <button class="f-cat" data-cat="patrimoine" onclick="pickCat(this,'patrimoine')" style="--cc:var(--cat-patrimoine)"><span class="ci"></span><span class="cl">Patrimoine</span></button>
+          <button class="f-cat" data-cat="ateliers" onclick="pickCat(this,'ateliers')" style="--cc:var(--cat-ateliers)"><span class="ci"></span><span class="cl">Ateliers</span></button>
         </div>
       </div>
     </div>
@@ -472,7 +493,14 @@ const TX={
   en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Submit an event',submitEvent:'Submit an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',gastronomie:'Gastronomy',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
-const CAT_ICONS={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼',enfants:'🧸','portes-ouvertes':'🚪',gastronomie:'🥖',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🏰',patrimoine:'🏰',ateliers:'🎨',autre:'🖼'};
+// SVG category icons — 24x24 viewBox, currentColor fill/stroke.
+// Matched to SoirFR reference art: distinctive shapes for the key categories,
+// clean simple shapes for the rest. No external font dependency.
+const CAT_EMOJI={musique:'🎵',cinema:'🎬',theatre:'🎭',expo:'🖼️',enfants:'🧸','portes-ouvertes':'🚪',gastronomie:'🥖',degustation:'🍷',brocante:'🏺',marche:'🥦',sport:'⚽',nature:'🌿',fete:'🎉',conference:'🏰',patrimoine:'🏰',ateliers:'🎨',autre:'🖼️'};
+const CAT_COLORS={musique:'#F2B705',cinema:'#0077A8',theatre:'#8E7CC3',expo:'#009688',enfants:'#F6AFC8','portes-ouvertes':'#E9B100',gastronomie:'#FF6A00',degustation:'#B3122B',brocante:'#D95F2B',marche:'#7DA32D',sport:'#8CC9F0',nature:'#2E7D32',fete:'#FF3D55',conference:'#C8A76A',patrimoine:'#C8A76A',ateliers:'#008C8C',autre:'#E23D28'};
+function catColor(c){return CAT_COLORS[c]||'#E23D28';}
+function catGlyph(c){return CAT_EMOJI[c]||'📍';}
+function imgFallback(img,cat){img.outerHTML=`<div class="${img.dataset.ph}">${catGlyph(cat)}</div>`;}
 function t(k){return TX[lang][k]||TX.fr[k]||k;}
 function catLabel(c){
   if(!c||c==='autre')return TX[lang].cats['autre']||'Événement';
@@ -520,6 +548,8 @@ function setLang(l){
     const c=b.getAttribute('data-cat');
     const sp=b.querySelector('.cl');
     if(sp)sp.textContent=TX[l].cats[c]||TX[l].cats['autre'];
+    const ci=b.querySelector('.ci');
+    if(ci&&c)ci.textContent=CAT_EMOJI[c]||'📍';
   });
   if(allEvs.length)renderDrawerList(cat?allEvs.filter(e=>e.category===cat):allEvs);
 }
@@ -706,7 +736,7 @@ function renderMapPins(evs){
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
     m._soirfr_idx = i;
     m.on('click',()=>showPopup(i,m));
@@ -750,7 +780,7 @@ function renderMapPinsInPlace(evs){
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
     m._soirfr_idx = i;
     m._soirfr_idx = i;
@@ -779,13 +809,14 @@ function showPopup(idx,marker){
   const row=document.querySelector(`.dl-item[data-idx="${idx}"]`);
   if(row){row.classList.add('active');row.scrollIntoView({block:'nearest',behavior:'smooth'});}
 
-  const icon=CAT_ICONS[ev.category]||'📌';
+  const icon=catGlyph(ev.category);
+  const cc=catColor(ev.category);
   const isFree=ev.is_free||ev.price_min===0;
   const link=ev.booking_url||ev.source_url;
   const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
   const imgHtml=ev.image_url
-    ?`<img src="${ev.image_url}" alt="" onerror="this.outerHTML='<div class=lp-img-ph>${icon}</div>'">`
-    :`<div class="lp-img-ph">${icon}</div>`;
+    ?`<img src="${ev.image_url}" alt="" data-ph="lp-img-ph" onerror="imgFallback(this,'${ev.category}')">`
+    :`<div class="lp-img-ph" style="color:${cc}">${icon}</div>`;
 
   const popup=L.popup({
     offset:[0,-6],maxWidth:300,minWidth:260,className:'soirfr-popup',
@@ -795,7 +826,7 @@ function showPopup(idx,marker){
   .setContent(`
     <div class="lp-img">${imgHtml}</div>
     <div class="lp-body">
-      <div class="lp-cat">${icon} ${catLabel(ev.category)}</div>
+      <div class="lp-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
       <div class="lp-title">${ev.title}</div>
       <div class="lp-rule"></div>
       ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtDate(ev.starts_at)}</div>`:''}
@@ -843,17 +874,18 @@ function renderDrawerList(evs){
     return;
   }
   list.innerHTML=evs.map((ev,i)=>{
-    const icon=CAT_ICONS[ev.category]||'📌';
+    const icon=catGlyph(ev.category);
+    const cc=catColor(ev.category);
     const isFree=ev.is_free||ev.price_min===0;
     const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
     const thumb=ev.image_url
-      ?`<img src="${ev.image_url}" alt="" onerror="this.outerHTML='<div class=dl-thumb-ph>${icon}</div>'">`
-      :`<div class="dl-thumb-ph">${icon}</div>`;
+      ?`<img src="${ev.image_url}" alt="" data-ph="dl-thumb-ph" onerror="imgFallback(this,'${ev.category}')">`
+      :`<div class="dl-thumb-ph" style="color:${cc}">${icon}</div>`;
     return `<div class="dl-item" data-idx="${i}" onclick="selectFromList(${i})">
       <div class="dl-date-block"><div class="dl-day">${fmtDay(ev.starts_at)}</div><div class="dl-mon">${mon(ev.starts_at)}</div></div>
       <div class="dl-thumb">${thumb}</div>
       <div class="dl-body">
-        <div class="dl-cat">${icon} ${catLabel(ev.category)}</div>
+        <div class="dl-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
         <div class="dl-title">${ev.title}</div>
         <div class="dl-meta">${ev.city||''}${dist}</div>
       </div>
@@ -976,6 +1008,12 @@ function selectAddr(label,lat,lng,source){
 }
 
 async function init(){
+  // Fill category button glyph chips from the SVG icon set (one source of truth)
+  document.querySelectorAll('.f-cat').forEach(b=>{
+    const c=b.getAttribute('data-cat');
+    const ci=b.querySelector('.ci');
+    if(ci&&c)ci.textContent=CAT_EMOJI[c]||'📍';
+  });
   // date-inp is hidden until user selects 'Date précise'
   // Open drawer by default
   drawerOpen = true;
