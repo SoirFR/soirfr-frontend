@@ -485,7 +485,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 <script>
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
-let lang='fr',cats=[],allEvs=[],displayEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
+let lang='fr',cats=[],allEvs=[],displayEvs=[],listEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
@@ -635,7 +635,7 @@ async function doSearch(oLat,oLng,oLabel){
   const{from,to}=dateRange();
   try{
     allEvs=await fetchEvs(lat,lng,fetchKm,from,to,cats);
-    displayEvs=buildDisplayEvs(allEvs);
+    rebuildViews(allEvs);
     renderMapPins(filterCats(displayEvs));
     hideLoading();
   }catch(e){console.error(e);hideLoading();}
@@ -650,8 +650,7 @@ function searchInView(){
   const{from,to}=dateRange();
   // Uses current QUAND + CATEGORIES from sidebar — map pan respects all filters
   fetchEvs(center.lat,center.lng,fetchKm,from,to,cats).then(raw=>{
-    allEvs=raw;
-    displayEvs=buildDisplayEvs(raw);
+    rebuildViews(raw);
     userLat=center.lat;
     userLng=center.lng;
     renderMapPinsInPlace(filterCats(displayEvs));
@@ -722,6 +721,27 @@ function buildDisplayEvs(raw){
   return out;
 }
 function evById(did){ return displayEvs[did]; }
+// The DRAWER shows one row per day an event runs (a 7-day-open monument = 7 rows),
+// but each row still points to the single de-duplicated map pin via _did.
+function buildListEvs(){
+  const out=[];
+  for(const ev of displayEvs){
+    const dates=(ev._dates&&ev._dates.length)?ev._dates:[ev.starts_at];
+    for(const d of dates){ out.push({...ev, starts_at:d, _did:ev._did}); }
+  }
+  out.sort((a,b)=>{
+    const da=String(a.starts_at||''), db=String(b.starts_at||'');
+    if(da!==db) return da<db?-1:1;
+    return (parseFloat(a.distance_km)||0)-(parseFloat(b.distance_km)||0);
+  });
+  return out;
+}
+// Rebuild both views (pins + per-day list) from a fresh result set
+function rebuildViews(raw){
+  allEvs=raw;
+  displayEvs=buildDisplayEvs(raw);
+  listEvs=buildListEvs();
+}
 function filterCats(list){ return cats.length ? list.filter(e=>cats.includes(e.category)) : list; }
 // Human date string, range-aware for multi-day events
 function fmtWhen(ev){
@@ -777,7 +797,7 @@ function fetchAndRender(lat,lng,fetchKm){
   const{from,to}=dateRange();
   showLoading();
   return fetchEvs(lat,lng,fetchKm,from,to,cats).then(raw=>{
-    allEvs=raw; displayEvs=buildDisplayEvs(raw);
+    rebuildViews(raw);
     userLat=lat; userLng=lng;
     renderMapPinsInPlace(filterCats(displayEvs));
     updateDrawerWithVisible();
@@ -939,9 +959,9 @@ function showPopup(did,marker){
 // ── DRAWER ────────────────────────────────────────────────────────────────
 // Update drawer to show only events visible in current map viewport
 function updateDrawerWithVisible(){
-  if(!map||!displayEvs.length)return;
+  if(!map||!listEvs.length)return;
   const bounds=map.getBounds();
-  const visible=displayEvs.filter(ev=>{
+  const visible=listEvs.filter(ev=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return false;
     return bounds.contains([lat,lng]);
@@ -968,10 +988,6 @@ function renderDrawerList(evs){
     const cc=catColor(ev.category);
     const isFree=ev.is_free||ev.price_min===0;
     const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
-    const lastDate=ev._dates&&ev._dates.length>1?ev._dates[ev._dates.length-1]:null;
-    const more=ev._count>1
-      ?(ev._count>=5?` · ${t('ongoing')}`:` · ${t('until')} ${new Date(lastDate).getDate()} ${mon(lastDate)}`)
-      :'';
     const thumb=ev.image_url
       ?`<img src="${ev.image_url}" alt="" data-ph="dl-thumb-ph" onerror="imgFallback(this,'${ev.category}')">`
       :`<div class="dl-thumb-ph" style="color:${cc}">${icon}</div>`;
@@ -981,7 +997,7 @@ function renderDrawerList(evs){
       <div class="dl-body">
         <div class="dl-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
         <div class="dl-title">${ev.title}</div>
-        <div class="dl-meta">${ev.city||''}${dist}${more}</div>
+        <div class="dl-meta">${ev.city||''}${dist}</div>
       </div>
       ${isFree?`<div class="dl-free"><span class="dl-free-tag">${t('free')}</span></div>`:''}
     </div>`;
