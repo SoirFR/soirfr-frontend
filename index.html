@@ -354,7 +354,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         <input type="range" id="radius-range" min="5" max="200" value="25" step="5"
           oninput="document.getElementById('radius-val').textContent=this.value+' KM';
                    const t=document.getElementById('radius-select-top');
-                   if(t)t.value=this.value;">
+                   if(t)t.value=this.value;"
+          onchange="applyRadius(this.value)">
       </div>
 
       <!-- QUAND — unified single control -->
@@ -484,13 +485,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 <script>
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
-let lang='fr',cats=[],allEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
+let lang='fr',cats=[],allEvs=[],displayEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Soumettre un événement',submitEvent:'Soumettre un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',gastronomie:'Gastronomie',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Submit an event',submitEvent:'Submit an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',gastronomie:'Gastronomy',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Soumettre un événement',submitEvent:'Soumettre un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',until:'jusqu’au',ongoing:'en continu',contact:'Contact',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',gastronomie:'Gastronomie',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Submit an event',submitEvent:'Submit an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',until:'until',ongoing:'ongoing',contact:'Contact',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',gastronomie:'Gastronomy',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
 // SVG category icons — 24x24 viewBox, currentColor fill/stroke.
@@ -551,7 +552,7 @@ function setLang(l){
     const ci=b.querySelector('.ci');
     if(ci&&c)ci.textContent=CAT_EMOJI[c]||'📍';
   });
-  if(allEvs.length)renderDrawerList(cat?allEvs.filter(e=>e.category===cat):allEvs);
+  if(displayEvs.length)updateDrawerWithVisible();
 }
 
 async function geocode(addr){
@@ -596,7 +597,7 @@ function dateRange(){
 }
 
 async function fetchEvs(lat,lng,km,from,to,catsArr){
-  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:(catsArr&&catsArr.length===1?catsArr[0]:null),date_from:from,date_to:to,max_results:200})});
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:(catsArr&&catsArr.length===1?catsArr[0]:null),date_from:from,date_to:to,max_results:500})});
   if(!r.ok)throw new Error(r.status);
   return r.json();
 }
@@ -626,13 +627,16 @@ async function doSearch(oLat,oLng,oLabel){
   const trad=document.getElementById('topbar-radius');
   const km2=document.getElementById('radius-range');
   if(trad&&km2)trad.textContent='· '+km2.value+' km';
+  setRadiusUI(km);
   showLoading();
+  // Zoom the map to show this radius, then fetch enough to fill the whole view
+  zoomToRadius(lat,lng,km);
+  const fetchKm=viewportFetchKm();
   const{from,to}=dateRange();
   try{
-    allEvs=await fetchEvs(lat,lng,km,from,to,cats);
-    renderMapPins(allEvs);
-    updateDrawerTab(allEvs,label);
-    renderDrawerList(allEvs);
+    allEvs=await fetchEvs(lat,lng,fetchKm,from,to,cats);
+    displayEvs=buildDisplayEvs(allEvs);
+    renderMapPins(filterCats(displayEvs));
     hideLoading();
   }catch(e){console.error(e);hideLoading();}
 }
@@ -640,16 +644,19 @@ async function doSearch(oLat,oLng,oLabel){
 function searchInView(){
   if(!map)return;
   const center=map.getCenter();
-  const km=parseFloat(document.getElementById('radius-range').value)||25;
+  const edgeKm=viewportRadiusKm();   // the radius the map is currently showing
+  const fetchKm=viewportFetchKm();   // fetch to the corners so nothing is missing
+  setRadiusUI(edgeKm);               // the map drives the km readout
   const{from,to}=dateRange();
   // Uses current QUAND + CATEGORIES from sidebar — map pan respects all filters
-  fetchEvs(center.lat,center.lng,km,from,to,cats).then(evs=>{
-    allEvs=evs;
+  fetchEvs(center.lat,center.lng,fetchKm,from,to,cats).then(raw=>{
+    allEvs=raw;
+    displayEvs=buildDisplayEvs(raw);
     userLat=center.lat;
     userLng=center.lng;
-    renderMapPinsInPlace(evs);
+    renderMapPinsInPlace(filterCats(displayEvs));
     updateDrawerWithVisible();
-    // Update OU field with reverse geocoded location
+    // Update OÙ field with reverse geocoded location (radius handled above)
     revGeo(center.lat,center.lng).then(label=>{
       if(label){
         userLabel=label;
@@ -658,8 +665,6 @@ function searchInView(){
         document.getElementById('addr-input').value=label;
         const tl=document.getElementById('topbar-location');
         if(tl)tl.textContent=label;
-        const tr=document.getElementById('topbar-radius');
-        if(tr)tr.textContent='· '+km+' km';
         document.getElementById('dt-loc').textContent=label;
       }
     });
@@ -681,6 +686,112 @@ function jitterCoords(evs){
     }
     return {...ev, lat, lng};
   });
+}
+
+// ── DEDUP + SORT ───────────────────────────────────────────────────────────
+// Multiple rows of the same event (one per day for a continuous/recurring event)
+// collapse into a single map pin + single list row. Identity = title + location.
+function eventKey(ev){
+  const t=(ev.title||'').toLowerCase().replace(/[^a-z0-9à-ÿ]+/gi,' ').trim();
+  const la=parseFloat(ev.lat), ln=parseFloat(ev.lng);
+  if(!isNaN(la)&&!isNaN(ln)) return t+'@'+la.toFixed(3)+','+ln.toFixed(3);
+  return t+'@'+(ev.city||'').toLowerCase();
+}
+function buildDisplayEvs(raw){
+  const groups=new Map();
+  for(const ev of (raw||[])){
+    const k=eventKey(ev);
+    if(!groups.has(k)) groups.set(k,[]);
+    groups.get(k).push(ev);
+  }
+  const out=[];
+  for(const occ of groups.values()){
+    occ.sort((a,b)=>String(a.starts_at||'').localeCompare(String(b.starts_at||'')));
+    const rep={...occ[0]};
+    rep._dates=occ.map(o=>o.starts_at).filter(Boolean);
+    rep._count=occ.length;
+    out.push(rep);
+  }
+  // Chronological by first upcoming date, then by distance
+  out.sort((a,b)=>{
+    const da=String(a.starts_at||''), db=String(b.starts_at||'');
+    if(da!==db) return da<db?-1:1;
+    return (parseFloat(a.distance_km)||0)-(parseFloat(b.distance_km)||0);
+  });
+  out.forEach((ev,i)=>{ ev._did=i; });
+  return out;
+}
+function evById(did){ return displayEvs[did]; }
+function filterCats(list){ return cats.length ? list.filter(e=>cats.includes(e.category)) : list; }
+// Human date string, range-aware for multi-day events
+function fmtWhen(ev){
+  const ds=(ev._dates&&ev._dates.length?ev._dates:[ev.starts_at]).filter(Boolean);
+  if(!ds.length) return '';
+  if(ds.length===1) return fmtDate(ds[0]);
+  const first=ds[0], last=ds[ds.length-1];
+  if(ds.length>=5) return `${fmtDate(first)} · ${t('ongoing')}`;
+  const d1=new Date(first), d2=new Date(last);
+  return `${d1.getDate()} ${mon(first)} – ${d2.getDate()} ${mon(last)}`;
+}
+
+// ── RADIUS ⇄ ZOOM (two-way binding) ────────────────────────────────────────
+function getDrawerH(){
+  const listEl=document.getElementById('drawer-list');
+  const tabEl=document.getElementById('drawer-tab');
+  return (drawerOpen&&listEl?listEl.offsetHeight:0)+(tabEl?tabEl.offsetHeight:54);
+}
+// km from map centre to the NEAREST visible edge = the radius the map is showing
+function viewportRadiusKm(){
+  const b=map.getBounds(), c=b.getCenter();
+  const edgeM=Math.min(
+    c.distanceTo(L.latLng(b.getNorth(), c.lng)),
+    c.distanceTo(L.latLng(c.lat, b.getEast()))
+  );
+  return Math.max(1, Math.round(edgeM/1000));
+}
+// km from centre to the CORNER — what we actually fetch, so corners aren't empty
+function viewportFetchKm(){
+  const b=map.getBounds(), c=b.getCenter();
+  return Math.max(2, Math.round(c.distanceTo(b.getNorthEast())/1000));
+}
+// Write a radius value into every place it's shown
+function setRadiusUI(km){
+  const slider=document.getElementById('radius-range');
+  if(slider){ const mn=+slider.min||5, mx=+slider.max||200; slider.value=Math.min(mx,Math.max(mn,km)); }
+  const rv=document.getElementById('radius-val'); if(rv)rv.textContent=km+' KM';
+  const hid=document.getElementById('radius-select-top'); if(hid)hid.value=km;
+  const tr=document.getElementById('topbar-radius'); if(tr)tr.textContent='· '+km+' km';
+}
+// Zoom so the visible radius ≈ km, centred on (lat,lng). animate:false → bounds are
+// correct immediately, so we can read the fetch radius right after.
+function zoomToRadius(lat,lng,km){
+  if(!map)return;
+  suppressMove=true;
+  const drawerH=getDrawerH();
+  map.fitBounds(L.latLng(lat,lng).toBounds(km*2000),
+    {paddingTopLeft:[24,24],paddingBottomRight:[24,drawerH+20],animate:false});
+  setTimeout(()=>{suppressMove=false;},900);
+}
+// Fetch + redraw around a point (used by the slider) without re-zooming
+function fetchAndRender(lat,lng,fetchKm){
+  const{from,to}=dateRange();
+  showLoading();
+  return fetchEvs(lat,lng,fetchKm,from,to,cats).then(raw=>{
+    allEvs=raw; displayEvs=buildDisplayEvs(raw);
+    userLat=lat; userLng=lng;
+    renderMapPinsInPlace(filterCats(displayEvs));
+    updateDrawerWithVisible();
+    hideLoading();
+  }).catch(e=>{console.error(e);hideLoading();});
+}
+// Slider released → resize the map to that radius and re-search
+function applyRadius(km){
+  km=parseFloat(km)||25;
+  setRadiusUI(km);
+  if(map&&userLat!=null){
+    zoomToRadius(userLat,userLng,km);
+    fetchAndRender(userLat,userLng,viewportFetchKm());
+  }
 }
 
 // ── CLUSTER + PIN RENDERING ────────────────────────────────────────────────
@@ -732,40 +843,19 @@ function renderMapPins(evs){
     clusterGroup.clearLayers();
   }
 
-  evs.forEach((ev,i)=>{
+  evs.forEach((ev)=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
+    const did=ev._did;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
-    m._soirfr_idx = i;
-    m.on('click',()=>showPopup(i,m));
+    m._did=did;
+    m.on('click',()=>showPopup(did,m));
     clusterGroup.addLayer(m);
   });
 
-  // Fit bounds only on first search
-  const bounds=[];
-  if(userLat&&userLng)bounds.push([userLat,userLng]);
-  evs.forEach(ev=>{const la=parseFloat(ev.lat),ln=parseFloat(ev.lng);if(!isNaN(la)&&!isNaN(ln))bounds.push([la,ln]);});
-  suppressMove=true;
-  // Get actual drawer height dynamically
-  const listEl=document.getElementById('drawer-list');
-  const tabEl=document.getElementById('drawer-tab');
-  const drawerH=(drawerOpen&&listEl?listEl.offsetHeight:0)+(tabEl?tabEl.offsetHeight:54);
-  const padBottom=drawerH+20;
-  if(bounds.length>1){
-    map.fitBounds(bounds,{
-      paddingTopLeft:[50,10],
-      paddingBottomRight:[50,padBottom],
-      maxZoom:13
-    });
-  } else if(userLat){
-    map.setView([userLat,userLng],12);
-    setTimeout(()=>map.panBy([0,-(drawerH/2)],{animate:false}),300);
-  }
-  setTimeout(()=>{suppressMove=false;},1000);
-
-  // Update drawer to show visible events
+  // Zoom is governed by the radius (see zoomToRadius), not by the event spread.
   updateDrawerWithVisible();
 }
 
@@ -776,15 +866,15 @@ function renderMapPinsInPlace(evs){
   clusterGroup.clearLayers();
   activeIdx=-1;
 
-  evs.forEach((ev,i)=>{
+  evs.forEach((ev)=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return;
+    const did=ev._did;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${i}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
     });
-    m._soirfr_idx = i;
-    m._soirfr_idx = i;
-    m.on('click',()=>showPopup(i,m));
+    m._did=did;
+    m.on('click',()=>showPopup(did,m));
     clusterGroup.addLayer(m);
   });
   // No fitBounds — map stays exactly where the user left it
@@ -792,8 +882,8 @@ function renderMapPinsInPlace(evs){
 }
 
 // ── POPUP (near pin, not corner) ──────────────────────────────────────────
-function showPopup(idx,marker){
-  const ev=allEvs[idx];if(!ev)return;
+function showPopup(did,marker){
+  const ev=evById(did);if(!ev)return;
 
   // Deactivate previous
   if(activeIdx>=0){
@@ -801,12 +891,12 @@ function showPopup(idx,marker){
     if(prev)prev.classList.remove('active');
     document.querySelectorAll('.dl-item.active').forEach(el=>el.classList.remove('active'));
   }
-  activeIdx=idx;
-  const pin=document.getElementById(`pin-${idx}`);
+  activeIdx=did;
+  const pin=document.getElementById(`pin-${did}`);
   if(pin)pin.classList.add('active');
 
   // Highlight drawer row
-  const row=document.querySelector(`.dl-item[data-idx="${idx}"]`);
+  const row=document.querySelector(`.dl-item[data-did="${did}"]`);
   if(row){row.classList.add('active');row.scrollIntoView({block:'nearest',behavior:'smooth'});}
 
   const icon=catGlyph(ev.category);
@@ -829,7 +919,7 @@ function showPopup(idx,marker){
       <div class="lp-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
       <div class="lp-title">${ev.title}</div>
       <div class="lp-rule"></div>
-      ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtDate(ev.starts_at)}</div>`:''}
+      ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtWhen(ev)}</div>`:''}
       ${ev.city?`<div class="lp-meta-row"><span class="lp-meta-icon">📍</span>${ev.city}${dist}</div>`:''}
     </div>
     <div class="lp-foot">
@@ -840,23 +930,23 @@ function showPopup(idx,marker){
   .openOn(map);
 
   popup.on('remove',()=>{
-    const p=document.getElementById(`pin-${idx}`);
+    const p=document.getElementById(`pin-${did}`);
     if(p)p.classList.remove('active');
-    if(activeIdx===idx)activeIdx=-1;
+    if(activeIdx===did)activeIdx=-1;
   });
 }
 
 // ── DRAWER ────────────────────────────────────────────────────────────────
 // Update drawer to show only events visible in current map viewport
 function updateDrawerWithVisible(){
-  if(!map||!allEvs.length)return;
+  if(!map||!displayEvs.length)return;
   const bounds=map.getBounds();
-  const visible=allEvs.filter(ev=>{
+  const visible=displayEvs.filter(ev=>{
     const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
     if(isNaN(lat)||isNaN(lng))return false;
     return bounds.contains([lat,lng]);
   });
-  const toShow=cats.length?visible.filter(e=>cats.includes(e.category)):visible;
+  const toShow=filterCats(visible);
   updateDrawerTab(toShow,userLabel);
   renderDrawerList(toShow);
 }
@@ -873,52 +963,56 @@ function renderDrawerList(evs){
     list.innerHTML=`<div style="padding:20px;text-align:center;font-family:var(--fc);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dust);">${t('noEvents')}</div>`;
     return;
   }
-  list.innerHTML=evs.map((ev,i)=>{
+  list.innerHTML=evs.map((ev)=>{
     const icon=catGlyph(ev.category);
     const cc=catColor(ev.category);
     const isFree=ev.is_free||ev.price_min===0;
     const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
+    const lastDate=ev._dates&&ev._dates.length>1?ev._dates[ev._dates.length-1]:null;
+    const more=ev._count>1
+      ?(ev._count>=5?` · ${t('ongoing')}`:` · ${t('until')} ${new Date(lastDate).getDate()} ${mon(lastDate)}`)
+      :'';
     const thumb=ev.image_url
       ?`<img src="${ev.image_url}" alt="" data-ph="dl-thumb-ph" onerror="imgFallback(this,'${ev.category}')">`
       :`<div class="dl-thumb-ph" style="color:${cc}">${icon}</div>`;
-    return `<div class="dl-item" data-idx="${i}" onclick="selectFromList(${i})">
+    return `<div class="dl-item" data-did="${ev._did}" onclick="selectFromList(${ev._did})">
       <div class="dl-date-block"><div class="dl-day">${fmtDay(ev.starts_at)}</div><div class="dl-mon">${mon(ev.starts_at)}</div></div>
       <div class="dl-thumb">${thumb}</div>
       <div class="dl-body">
         <div class="dl-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
         <div class="dl-title">${ev.title}</div>
-        <div class="dl-meta">${ev.city||''}${dist}</div>
+        <div class="dl-meta">${ev.city||''}${dist}${more}</div>
       </div>
       ${isFree?`<div class="dl-free"><span class="dl-free-tag">${t('free')}</span></div>`:''}
     </div>`;
   }).join('');
 }
 
-function selectFromList(idx){
-  const ev=allEvs[idx];if(!ev||!ev.lat||!ev.lng)return;
+function selectFromList(did){
+  const ev=evById(did);if(!ev||ev.lat==null||ev.lng==null)return;
   const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
   // Highlight in list
   document.querySelectorAll('.dl-item').forEach(el=>el.classList.remove('active'));
-  const row=document.querySelector(`.dl-item[data-idx="${idx}"]`);
+  const row=document.querySelector(`.dl-item[data-did="${did}"]`);
   if(row)row.classList.add('active');
-  // Find marker and show popup WITHOUT moving map
-  // Only pan if the marker is outside current view
+  // Find the exact marker for this event and show popup WITHOUT moving map
+  // (only pan if the marker is outside the current view)
   let found=false;
   clusterGroup.eachLayer(m=>{
     if(found)return;
-    const ll=m.getLatLng();
-    if(Math.abs(ll.lat-lat)<0.001&&Math.abs(ll.lng-lng)<0.001){
+    if(m._did===did){
       found=true;
+      const ll=m.getLatLng();
       if(!map.getBounds().contains(ll)){
         suppressMove=true;
         map.panTo(ll,{animate:true});
-        setTimeout(()=>{suppressMove=false;showPopup(idx,m);},400);
+        setTimeout(()=>{suppressMove=false;showPopup(did,m);},400);
       } else {
-        showPopup(idx,m);
+        showPopup(did,m);
       }
     }
   });
-  if(!found) showPopup(idx,{getLatLng:()=>L.latLng(lat,lng)});
+  if(!found) showPopup(did,{getLatLng:()=>L.latLng(lat,lng)});
 }
 
 function toggleDrawer(){
@@ -951,9 +1045,8 @@ function pickCat(btn,c){
       btn.classList.add('on');
     }
   }
-  if(allEvs.length){
-    const f=cats.length?allEvs.filter(e=>cats.includes(e.category)):allEvs;
-    renderMapPinsInPlace(f);
+  if(displayEvs.length){
+    renderMapPinsInPlace(filterCats(displayEvs));
     updateDrawerWithVisible();
   }
 }
@@ -963,11 +1056,12 @@ function hideLoading(){document.getElementById('loading-cover').style.display='n
 
 // ── MAP AUTO-PAN SEARCH ───────────────────────────────────────────────────
 function onMapMove(){
-  // Always update drawer count with visible events immediately
+  // Always update drawer count + radius readout immediately
   updateDrawerWithVisible();
+  if(map&&!suppressMove)setRadiusUI(viewportRadiusKm());
   if(!searchEnabled||suppressMove)return;
   clearTimeout(moveTimer);
-  moveTimer=setTimeout(searchInView,1200);
+  moveTimer=setTimeout(searchInView,900);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
