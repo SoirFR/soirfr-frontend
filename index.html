@@ -162,6 +162,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 #map-area{grid-area:map;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
 #map-wrap{flex:1 1 0;min-height:0;position:relative;}
 #map{width:100%;height:100%;}
+.locate-btn{width:30px;height:30px;background:#fff;border:none;cursor:pointer;font-size:17px;line-height:30px;text-align:center;color:var(--ink);display:block;padding:0;}
+.locate-btn:hover{background:#f4f4f4;color:var(--rouge);}
 
 
 
@@ -287,11 +289,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .dl-free{flex-shrink:0;display:flex;align-items:center;padding:0 10px;}
 .dl-free-tag{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;border-radius:2px;padding:2px 5px;}
 
-/* zone btn */
-#zone-btn{position:absolute;bottom:12px;right:16px;background:white;border:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;z-index:400;box-shadow:0 2px 12px rgba(0,0,0,0.1);transition:box-shadow 0.15s;}
-#zone-btn:hover{box-shadow:0 4px 20px rgba(0,0,0,0.15);}
-.zb-label{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);}
-.zb-sub{font-size:9px;font-family:var(--fc);letter-spacing:0.1em;color:var(--dust);text-transform:uppercase;}
 
 @media(max-width:860px){
   #shell{
@@ -316,9 +313,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   /* Topbar simplified on mobile */
   #topbar{padding:0 12px;gap:8px;}
   .tb-right{gap:8px;}
-
-  /* Zone btn repositioned */
-  #zone-btn{bottom:8px;right:8px;}
 
   /* Sidebar stripes thinner on mobile */
   .sidebar-stripes span:nth-child(1){width:5px;}
@@ -424,10 +418,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         </div>
       </div>
     </div>
-
- <div class="s-foot">
-  <a href="mailto:bonjour@soirfr.com" id="ft-contact">Contact</a>
-</div>
   </div>
 
   <!-- TOP BAR -->
@@ -439,12 +429,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     </div>
     <div class="tb-sep"></div>
     <a href="/submit.html" class="tb-action" id="tb-add" style="text-decoration:none;">Soumettre un événement</a>
+    <div class="tb-sep"></div>
+    <a href="mailto:bonjour@soirfr.com" class="tb-action" id="tb-contact" style="text-decoration:none;">Contact</a>
     <div class="tb-right">
       <div class="lang-sw">
         <button class="lang-b on" onclick="setLang('fr')">FR</button>
         <button class="lang-b" onclick="setLang('en')">EN</button>
       </div>
-      <div class="tb-menu"><span></span><span></span><span></span></div>
     </div>
     <input type="hidden" id="addr-input">
     <input type="hidden" id="radius-select-top" value="25">
@@ -454,14 +445,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   <div id="map-area">
     <div id="map-wrap">
       <div id="map"></div>
-
-      <div id="zone-btn" onclick="searchInView()">
-        <span style="font-size:14px;color:var(--dust);">⊙</span>
-        <div>
-          <div class="zb-label" id="zb-label">Afficher les événements</div>
-          <div class="zb-sub" id="zb-sub">Dans cette zone</div>
-        </div>
-      </div>
 
       <div id="loading-cover" style="display:none">
         <div class="lc-inner">
@@ -547,10 +530,7 @@ function setLang(l){
   document.getElementById('opt-month').textContent=t('optMonth');
   const oy=document.getElementById('opt-year');if(oy)oy.textContent=t('optYear');
   const oc=document.getElementById('opt-custom');if(oc)oc.textContent=t('optCustom');
-  document.getElementById('zb-label').textContent=t('zoneBtn');
-  document.getElementById('zb-sub').textContent=t('zoneSub');
-  const ftc=document.getElementById('ft-contact');if(ftc)ftc.textContent=t('contact');
-  const fts=document.getElementById('ft-submit');if(fts)fts.textContent=t('submitEvent');
+  const ftc=document.getElementById('tb-contact');if(ftc)ftc.textContent=t('contact');
   document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
   document.getElementById('dt-label').textContent=t('events');
   const tagEl=document.getElementById('s-tag');
@@ -822,6 +802,21 @@ function zoomToRadius(lat,lng,km){
     {paddingTopLeft:[24,24],paddingBottomRight:[24,24],animate:false});
   setTimeout(()=>{suppressMove=false;},900);
 }
+// Recenter the map on the user's location. If we already know it, just pan
+// there; otherwise ask the browser for it.
+function recenterUser(){
+  if(!map) return;
+  if(userLat!=null && userLng!=null){
+    map.setView([userLat,userLng], Math.max(map.getZoom(), 11), {animate:true});
+  } else if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      const lat=pos.coords.latitude, lng=pos.coords.longitude;
+      const label=await revGeo(lat,lng);
+      const ai=document.getElementById('addr-input'); if(ai) ai.value=label||'';
+      doSearch(lat,lng,label);
+    });
+  }
+}
 // Fetch + redraw around a point (used by the slider) without re-zooming
 function fetchAndRender(lat,lng,fetchKm){
   const{from,to}=dateRange();
@@ -1085,6 +1080,14 @@ function drawerMaxH(){
   const h=area?area.offsetHeight:window.innerHeight;
   return Math.max(120, Math.round(h*0.8));
 }
+// Default open height: the whole drawer ≈ 40% of the map area (map stays the hero)
+function defaultDrawerH(){
+  const area=document.getElementById('map-area');
+  const h=(area&&area.offsetHeight)?area.offsetHeight:(window.innerHeight-56);
+  const grip=document.getElementById('drawer-grip'), tab=document.getElementById('drawer-tab');
+  const chrome=(grip?grip.offsetHeight:16)+(tab?tab.offsetHeight:54);
+  return Math.max(160, Math.min(drawerMaxH(), Math.round(h*0.40)-chrome));
+}
 // Apply a list height. animate=false (during drag) tracks the finger; true eases.
 function applyDrawerListH(px, animate){
   const list=document.getElementById('drawer-list');
@@ -1211,6 +1214,7 @@ async function init(){
   // date-inp is hidden until user selects 'Date précise'
   // Open drawer by default
   drawerOpen = true;
+  drawerListH = defaultDrawerH();
   document.getElementById('drawer-list').style.height = drawerListH + 'px';
   document.getElementById('dt-arrow').classList.add('up');
   const ttxt = document.getElementById('dt-toggle-txt');
@@ -1227,6 +1231,19 @@ async function init(){
     subdomains:'abcd'
   }).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
+  // "Locate me" button stacked under the zoom controls
+  const LocateControl = L.Control.extend({
+    options:{position:'bottomright'},
+    onAdd:function(){
+      const wrap=L.DomUtil.create('div','leaflet-bar');
+      const btn=L.DomUtil.create('button','locate-btn',wrap);
+      btn.type='button'; btn.title='Recentrer sur ma position'; btn.innerHTML='⌖';
+      L.DomEvent.on(btn,'click',function(e){ L.DomEvent.stop(e); recenterUser(); });
+      L.DomEvent.disableClickPropagation(wrap);
+      return wrap;
+    }
+  });
+  map.addControl(new LocateControl());
   map.on('moveend',onMapMove);
   setTimeout(()=>{ if(map) map.invalidateSize(); }, 80);
 
