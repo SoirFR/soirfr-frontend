@@ -159,7 +159,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .tb-menu span{width:12px;height:1.5px;background:var(--cream);display:block;}
 
 /* ── MAP ── */
-#map-area{grid-area:map;position:relative;}
+#map-area{grid-area:map;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+#map-wrap{flex:1 1 0;min-height:0;position:relative;}
 #map{width:100%;height:100%;}
 
 
@@ -246,11 +247,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .lc-text{font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--cream);}
 
 /* ── BOTTOM DRAWER ── */
-#drawer{position:absolute;bottom:0;left:0;right:0;z-index:400;display:flex;flex-direction:column;}
-#drawer-tab{cursor:pointer;user-select:none;flex-shrink:0;}
-/* Ensure drawer list never covers more than 45% of map height */
-#drawer-list.open{height:200px;max-height:45vh;}
-#drawer-tab{background:var(--ink);border-top:2px solid var(--rouge);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--bot);cursor:pointer;flex-shrink:0;user-select:none;}
+#drawer{flex:0 0 auto;display:flex;flex-direction:column;background:var(--ink);}
+#drawer-grip{height:16px;flex-shrink:0;background:var(--ink);border-top:2px solid var(--rouge);
+  cursor:ns-resize;display:flex;align-items:center;justify-content:center;touch-action:none;}
+#drawer-grip::after{content:'';width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.28);transition:background 0.15s;}
+#drawer-grip:hover::after{background:rgba(255,255,255,0.55);}
+#drawer-tab{cursor:pointer;user-select:none;flex-shrink:0;background:var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--bot);}
 .dt-left{display:flex;align-items:baseline;gap:10px;}
 .dt-count{font-family:var(--fc);font-size:32px;font-weight:900;color:var(--cream);line-height:1;}
 .dt-label{font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,234,216,0.45);}
@@ -261,6 +263,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .dt-arrow.up{transform:rotate(180deg);}
 
 #drawer-list{background:white;overflow-y:auto;height:0;transition:height 0.3s cubic-bezier(0.16,1,0.3,1);}
+#drawer-list.dragging{transition:none;}
 
 
 .dl-item{display:flex;align-items:stretch;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;}
@@ -285,7 +288,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .dl-free-tag{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;border-radius:2px;padding:2px 5px;}
 
 /* zone btn */
-#zone-btn{position:absolute;bottom:calc(var(--bot) + 12px);right:60px;background:white;border:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;z-index:400;box-shadow:0 2px 12px rgba(0,0,0,0.1);transition:box-shadow 0.15s;}
+#zone-btn{position:absolute;bottom:12px;right:16px;background:white;border:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;z-index:400;box-shadow:0 2px 12px rgba(0,0,0,0.1);transition:box-shadow 0.15s;}
 #zone-btn:hover{box-shadow:0 4px 20px rgba(0,0,0,0.15);}
 .zb-label{font-family:var(--fc);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);}
 .zb-sub{font-size:9px;font-family:var(--fc);letter-spacing:0.1em;color:var(--dust);text-transform:uppercase;}
@@ -449,26 +452,28 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
   <!-- MAP AREA -->
   <div id="map-area">
-    <div id="map"></div>
+    <div id="map-wrap">
+      <div id="map"></div>
 
-    <div id="zone-btn" onclick="searchInView()">
-      <span style="font-size:14px;color:var(--dust);">⊙</span>
-      <div>
-        <div class="zb-label" id="zb-label">Afficher les événements</div>
-        <div class="zb-sub" id="zb-sub">Dans cette zone</div>
+      <div id="zone-btn" onclick="searchInView()">
+        <span style="font-size:14px;color:var(--dust);">⊙</span>
+        <div>
+          <div class="zb-label" id="zb-label">Afficher les événements</div>
+          <div class="zb-sub" id="zb-sub">Dans cette zone</div>
+        </div>
       </div>
-    </div>
 
-    <div id="loading-cover" style="display:none">
-      <div class="lc-inner">
-        <div class="lc-dots"><div class="lc-dot"></div><div class="lc-dot"></div><div class="lc-dot"></div></div>
-        <div class="lc-text" id="lc-txt">Recherche en cours</div>
+      <div id="loading-cover" style="display:none">
+        <div class="lc-inner">
+          <div class="lc-dots"><div class="lc-dot"></div><div class="lc-dot"></div><div class="lc-dot"></div></div>
+          <div class="lc-text" id="lc-txt">Recherche en cours</div>
+        </div>
       </div>
     </div>
 
     <div id="drawer">
-      <div id="drawer-tab" onclick="toggleDrawer()" style="position:relative;">
-      <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;"></div>
+      <div id="drawer-grip" title="Glisser pour redimensionner"></div>
+      <div id="drawer-tab" onclick="toggleDrawer()">
         <div class="dt-left">
           <div class="dt-count" id="dt-count">—</div>
           <div class="dt-label" id="dt-label">Événements</div>
@@ -490,6 +495,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
 let lang='fr',cats=[],allEvs=[],displayEvs=[],listEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
+let drawerListH=260; // current open height of the results list, in px (drag + toggle write here)
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
@@ -812,9 +818,8 @@ function setRadiusUI(km){
 function zoomToRadius(lat,lng,km){
   if(!map)return;
   suppressMove=true;
-  const drawerH=getDrawerH();
   map.fitBounds(L.latLng(lat,lng).toBounds(km*2000),
-    {paddingTopLeft:[24,24],paddingBottomRight:[24,drawerH+20],animate:false});
+    {paddingTopLeft:[24,24],paddingBottomRight:[24,24],animate:false});
   setTimeout(()=>{suppressMove=false;},900);
 }
 // Fetch + redraw around a point (used by the slider) without re-zooming
@@ -1074,16 +1079,52 @@ function selectFromList(did){
   if(!found) showPopup(did,{getLatLng:()=>L.latLng(lat,lng)});
 }
 
-function toggleDrawer(){
-  drawerOpen=!drawerOpen;
-  document.getElementById('drawer-list').classList.toggle('open',drawerOpen);
-  document.getElementById('dt-arrow').classList.toggle('up',drawerOpen);
-  document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
-  // Adjust map padding so center accounts for drawer
-  const drawerH = drawerOpen ? 200 : 0;
-  if(map) map.invalidateSize();
-  if(map) map.options.paddingTopLeft = [0,0];
-  if(map) map.options.paddingBottomRight = [0, drawerH];
+// Largest the list may grow — always leave some map visible
+function drawerMaxH(){
+  const area=document.getElementById('map-area');
+  const h=area?area.offsetHeight:window.innerHeight;
+  return Math.max(120, Math.round(h*0.8));
+}
+// Apply a list height. animate=false (during drag) tracks the finger; true eases.
+function applyDrawerListH(px, animate){
+  const list=document.getElementById('drawer-list');
+  if(!list) return;
+  list.classList.toggle('dragging', animate===false);
+  list.style.height=px+'px';
+  if(map){ animate===false ? map.invalidateSize() : setTimeout(()=>map.invalidateSize(),320); }
+}
+function setDrawerOpen(open, animate){
+  drawerOpen=open;
+  const arrow=document.getElementById('dt-arrow'); if(arrow) arrow.classList.toggle('up', open);
+  const ttxt=document.getElementById('dt-toggle-txt'); if(ttxt) ttxt.textContent=open?t('hideList'):t('seeList');
+  applyDrawerListH(open?drawerListH:0, animate);
+}
+function toggleDrawer(){ setDrawerOpen(!drawerOpen, true); }
+// Drag the grip to resize; the map (flex:1 above) shrinks/grows to fit.
+function startDrawerDrag(e){
+  e.preventDefault();
+  const list=document.getElementById('drawer-list');
+  const startY=e.clientY, startH=list.offsetHeight, maxH=drawerMaxH();
+  function move(ev){
+    let h=Math.max(0, Math.min(maxH, startH+(startY-ev.clientY)));
+    if(h>0){ drawerOpen=true; drawerListH=h; }
+    applyDrawerListH(h, false);
+  }
+  function end(){
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', end);
+    const l=document.getElementById('drawer-list'); l.classList.remove('dragging');
+    const h=l.offsetHeight;
+    if(h<48){ drawerListH=260; setDrawerOpen(false, true); }
+    else{
+      drawerOpen=true; drawerListH=h;
+      const arrow=document.getElementById('dt-arrow'); if(arrow) arrow.classList.add('up');
+      const tt=document.getElementById('dt-toggle-txt'); if(tt) tt.textContent=t('hideList');
+      if(map) map.invalidateSize();
+    }
+  }
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', end);
 }
 
 function pickCat(btn,c){
@@ -1170,24 +1211,24 @@ async function init(){
   // date-inp is hidden until user selects 'Date précise'
   // Open drawer by default
   drawerOpen = true;
-  document.getElementById('drawer-list').classList.add('open');
+  document.getElementById('drawer-list').style.height = drawerListH + 'px';
   document.getElementById('dt-arrow').classList.add('up');
   const ttxt = document.getElementById('dt-toggle-txt');
   if (ttxt) ttxt.textContent = t('hideList');
+  const grip = document.getElementById('drawer-grip');
+  if (grip) grip.addEventListener('pointerdown', startDrawerDrag);
   document.getElementById('addr-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
   map=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.8,2.3],6);
-  // Set map padding so Leaflet centers within visible area above drawer
-  function updateMapPadding(){
-    const drawerH = drawerOpen ? (document.getElementById('drawer-list').offsetHeight + 54) : 54;
-    map.setPadding ? map.setPadding({bottom: drawerH}) : null;
-  }
+  // Map now physically resizes with the drawer, so it just needs a redraw after layout settles.
+  function updateMapPadding(){ if(map) map.invalidateSize(); }
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19,
     subdomains:'abcd'
   }).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
   map.on('moveend',onMapMove);
+  setTimeout(()=>{ if(map) map.invalidateSize(); }, 80);
 
   // Enable auto-search after 4s (after first load settles)
   setTimeout(()=>{searchEnabled=true;},4000);
