@@ -228,6 +228,10 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .lp-meta-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dust);font-weight:300;margin-bottom:3px;}
 .lp-meta-icon{font-size:12px;}
 .lp-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--border);margin-top:4px;}
+.lp-desc{font-size:13px;line-height:1.45;color:var(--ink);font-weight:300;margin-top:8px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
+.lp-contact{padding:6px 14px 0;display:flex;flex-direction:column;gap:5px;}
+.lp-contact-row{font-size:13px;color:var(--rouge);text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:400;word-break:break-all;}
+.lp-contact-row:hover{color:var(--ink);}
 .lp-link{font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rouge);text-decoration:none;display:flex;align-items:center;gap:6px;}
 .lp-link:hover{color:var(--ink);}
 .lp-free{font-family:var(--fc);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5A7A4A;border:1px solid #5A7A4A;padding:2px 6px;}
@@ -707,8 +711,17 @@ function buildDisplayEvs(raw){
   for(const occ of groups.values()){
     occ.sort((a,b)=>String(a.starts_at||'').localeCompare(String(b.starts_at||'')));
     const rep={...occ[0]};
-    rep._dates=occ.map(o=>o.starts_at).filter(Boolean);
-    rep._count=occ.length;
+    // One entry per calendar day — drop duplicate rows that land on the same day
+    const seen=new Set(), dates=[];
+    for(const o of occ){
+      if(!o.starts_at)continue;
+      const day=String(o.starts_at).slice(0,10);
+      if(seen.has(day))continue;
+      seen.add(day);
+      dates.push(o.starts_at);
+    }
+    rep._dates=dates;
+    rep._count=dates.length;
     out.push(rep);
   }
   // Chronological by first upcoming date, then by distance
@@ -752,6 +765,18 @@ function fmtWhen(ev){
   if(ds.length>=5) return `${fmtDate(first)} · ${t('ongoing')}`;
   const d1=new Date(first), d2=new Date(last);
   return `${d1.getDate()} ${mon(first)} – ${d2.getDate()} ${mon(last)}`;
+}
+// Time of day like "20h00", or '' for midnight/all-day
+function timeOf(s){const d=new Date(s);if(isNaN(d))return'';const h=d.getHours(),m=d.getMinutes();return (h===0&&m===0)?'':`${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`;}
+// Date for the popup: multi-day events show the range; single-day events add the end time
+function fmtWhenFull(ev){
+  const ds=(ev._dates&&ev._dates.length?ev._dates:[ev.starts_at]).filter(Boolean);
+  if(ds.length>1) return fmtWhen(ev);
+  let out=fmtDate(ev.starts_at);
+  const st=timeOf(ev.starts_at), et=ev.ends_at?timeOf(ev.ends_at):'';
+  const sameDay=ev.ends_at&&String(ev.starts_at).slice(0,10)===String(ev.ends_at).slice(0,10);
+  if(sameDay&&st&&et&&et!==st) out+=`–${et}`;
+  return out;
 }
 
 // ── RADIUS ⇄ ZOOM (two-way binding) ────────────────────────────────────────
@@ -922,8 +947,21 @@ function showPopup(did,marker){
   const icon=catGlyph(ev.category);
   const cc=catColor(ev.category);
   const isFree=ev.is_free||ev.price_min===0;
-  const link=ev.booking_url||ev.source_url;
+  // Classify the contact info. OpenAgenda's "registration" can be a web link,
+  // a phone number, or an email — each must be rendered differently, never as
+  // a raw href (a phone number as href reads as a path on our own site → 404).
+  const isWebUrl=u=>typeof u==='string'&&/^https?:\/\//i.test(u.trim());
+  const isEmail=u=>typeof u==='string'&&/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(u.trim());
+  const isPhone=u=>typeof u==='string'&&/^[+(]?\d[\d\s().-]{5,}$/.test(u.trim());
+  const bk=(ev.booking_url||'').trim();
+  const webLink=isWebUrl(ev.source_url)?ev.source_url.trim():(isWebUrl(bk)?bk:null);
+  const phone=(!isWebUrl(bk)&&isPhone(bk))?bk:null;
+  const email=isEmail(bk)?bk:null;
   const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
+  // Where: full street address when we have it, falling back to the town
+  const where=[ev.address,[ev.postcode,ev.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')||ev.city||'';
+  // What: description, stripped of any stray markup
+  const desc=ev.description?String(ev.description).replace(/<[^>]*>/g,'').trim():'';
   const imgHtml=ev.image_url
     ?`<img src="${ev.image_url}" alt="" data-ph="lp-img-ph" onerror="imgFallback(this,'${ev.category}')">`
     :`<div class="lp-img-ph" style="color:${cc}">${icon}</div>`;
@@ -939,11 +977,16 @@ function showPopup(did,marker){
       <div class="lp-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
       <div class="lp-title">${ev.title}</div>
       <div class="lp-rule"></div>
-      ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtWhen(ev)}</div>`:''}
-      ${ev.city?`<div class="lp-meta-row"><span class="lp-meta-icon">📍</span>${ev.city}${dist}</div>`:''}
+      ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtWhenFull(ev)}</div>`:''}
+      ${where?`<div class="lp-meta-row"><span class="lp-meta-icon">📍</span>${where}${dist}</div>`:''}
+      ${desc?`<div class="lp-desc">${desc}</div>`:''}
     </div>
+    ${(phone||email)?`<div class="lp-contact">
+      ${phone?`<a class="lp-contact-row" href="tel:${phone.replace(/[^\d+]/g,'')}"><span class="lp-meta-icon">📞</span>${phone}</a>`:''}
+      ${email?`<a class="lp-contact-row" href="mailto:${email}"><span class="lp-meta-icon">✉️</span>${email}</a>`:''}
+    </div>`:''}
     <div class="lp-foot">
-      ${link?`<a class="lp-link" href="${link}" target="_blank" rel="noopener">${t('seeDetails')} →</a>`:'<span></span>'}
+      ${webLink?`<a class="lp-link" href="${webLink}" target="_blank" rel="noopener">${t('seeDetails')} →</a>`:'<span></span>'}
       ${isFree?`<span class="lp-free">${t('free')}</span>`:''}
     </div>
   `)
