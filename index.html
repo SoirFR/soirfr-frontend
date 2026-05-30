@@ -799,22 +799,37 @@ function setRadiusUI(km){
 function zoomToRadius(lat,lng,km){
   if(!map)return;
   suppressMove=true;
+  map.invalidateSize({animate:false,pan:false}); // ensure size is current (drawer may have changed it) before centering
   map.fitBounds(L.latLng(lat,lng).toBounds(km*2000),
     {paddingTopLeft:[24,24],paddingBottomRight:[24,24],animate:false});
   setTimeout(()=>{suppressMove=false;},900);
+}
+// The site only covers France. If we can't use the visitor's real location
+// (outside France, denied, or unsupported), we land them here instead.
+const FRANCE_DEFAULT = {lat:47.0261, lng:4.8357, label:"Beaune, Côte-d'Or"};
+function inFrance(lat,lng){
+  return lat>=41.0 && lat<=51.2 && lng>=-5.5 && lng<=9.7; // metropolitan France + Corsica
+}
+function goToFranceDefault(){
+  homeLat=FRANCE_DEFAULT.lat; homeLng=FRANCE_DEFAULT.lng;
+  const ai=document.getElementById('addr-input'); if(ai) ai.value=FRANCE_DEFAULT.label;
+  doSearch(FRANCE_DEFAULT.lat, FRANCE_DEFAULT.lng, FRANCE_DEFAULT.label);
 }
 // Recenter the map on the user's ACTUAL location (not the roaming search center).
 function recenterUser(){
   if(!map) return;
   if(homeLat!=null && homeLng!=null){
+    map.invalidateSize({animate:false,pan:false});
     map.setView([homeLat,homeLng], Math.max(map.getZoom(), 11), {animate:true});
   } else if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(async pos=>{
-      homeLat=pos.coords.latitude; homeLng=pos.coords.longitude;
-      const label=await revGeo(homeLat,homeLng);
+      const lat=pos.coords.latitude, lng=pos.coords.longitude;
+      if(!inFrance(lat,lng)){ goToFranceDefault(); return; }
+      homeLat=lat; homeLng=lng;
+      const label=await revGeo(lat,lng);
       const ai=document.getElementById('addr-input'); if(ai) ai.value=label||'';
-      doSearch(homeLat,homeLng,label);
-    });
+      doSearch(lat,lng,label);
+    }, ()=>goToFranceDefault());
   }
 }
 // Fetch + redraw around a point (used by the slider) without re-zooming
@@ -1254,20 +1269,17 @@ async function init(){
     navigator.geolocation.getCurrentPosition(
       async pos=>{
         const lat=pos.coords.latitude,lng=pos.coords.longitude;
+        if(!inFrance(lat,lng)){ goToFranceDefault(); return; }
         homeLat=lat; homeLng=lng;
         const label=await revGeo(lat,lng);
         document.getElementById('addr-input').value=label||'';
         doSearch(lat,lng,label);
       },
-      ()=>{
-        document.getElementById('addr-input').value="Beaune, Côte-d'Or";
-        doSearch(47.0261,4.8357,'Beaune');
-      },
+      ()=>goToFranceDefault(),
       {timeout:4000,maximumAge:120000}
     );
   }else{
-    document.getElementById('addr-input').value="Beaune, Côte-d'Or";
-    doSearch(47.0261,4.8357,'Beaune');
+    goToFranceDefault();
   }
 }
 
