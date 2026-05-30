@@ -703,7 +703,7 @@ function dateRange(){
 }
 
 async function fetchEvs(lat,lng,km,from,to,catsArr){
-  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:(catsArr&&catsArr.length===1?catsArr[0]:null),date_from:from,date_to:to,max_results:500})});
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/events_near_point`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({lat,lng,radius_km:km,cat:(catsArr&&catsArr.length===1?catsArr[0]:null),date_from:from,date_to:to,max_results:5000})});
   if(!r.ok)throw new Error(r.status);
   return r.json();
 }
@@ -1456,4 +1456,3 @@ init();
 </script>
 </body>
 </html>
-
