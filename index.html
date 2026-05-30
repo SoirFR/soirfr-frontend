@@ -186,23 +186,26 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
 /* ── EVENT PINS ── */
 .map-pin{
-  width:14px;height:14px;background:var(--pc,var(--rouge));border-radius:50%;
+  width:28px;height:28px;background:var(--pc,var(--rouge));border-radius:50%;
   border:2px solid white;
-  box-shadow:0 2px 6px rgba(17,16,9,0.35);
+  box-shadow:0 2px 6px rgba(17,16,9,0.4);
   cursor:pointer;
-  transition:all 0.15s;
+  transition:transform 0.15s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;line-height:1;
+  text-shadow:0 1px 1px rgba(255,255,255,0.55);
 }
 .map-pin.active{
-  width:20px;height:20px;
-  background:var(--rouge);
+  transform:scale(1.18);
   border:2px solid white;
-  box-shadow:0 0 0 5px rgba(194,50,31,0.25),0 0 0 10px rgba(194,50,31,0.1);
+  box-shadow:0 0 0 5px rgba(194,50,31,0.22),0 0 0 10px rgba(194,50,31,0.09),0 2px 8px rgba(17,16,9,0.45);
   animation:pinPulse 1.5s ease infinite;
+  z-index:1000;
 }
 @keyframes pinPulse{
-  0%{box-shadow:0 0 0 4px rgba(194,50,31,0.3),0 0 0 8px rgba(194,50,31,0.12);}
-  50%{box-shadow:0 0 0 7px rgba(194,50,31,0.2),0 0 0 14px rgba(194,50,31,0.06);}
-  100%{box-shadow:0 0 0 4px rgba(194,50,31,0.3),0 0 0 8px rgba(194,50,31,0.12);}
+  0%{box-shadow:0 0 0 4px rgba(194,50,31,0.28),0 0 0 9px rgba(194,50,31,0.1),0 2px 8px rgba(17,16,9,0.4);}
+  50%{box-shadow:0 0 0 7px rgba(194,50,31,0.18),0 0 0 14px rgba(194,50,31,0.05),0 2px 8px rgba(17,16,9,0.4);}
+  100%{box-shadow:0 0 0 4px rgba(194,50,31,0.28),0 0 0 9px rgba(194,50,31,0.1),0 2px 8px rgba(17,16,9,0.4);}
 }
 .user-dot{width:12px;height:12px;background:var(--cobalt);border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(27,45,74,0.2);}
 
@@ -330,13 +333,20 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   .m-chip,.m-when-chip,.m-link-chip{flex:0 0 auto;white-space:nowrap;
     font-family:var(--fc);font-weight:700;font-size:13px;color:var(--ink);
     background:#fff;border:1px solid var(--border);border-radius:20px;
-    padding:7px 14px;cursor:pointer;line-height:1;}
-  .m-chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink);}
-  .m-when-chip{appearance:none;-webkit-appearance:none;padding-right:28px;
+    cursor:pointer;line-height:1;}
+  .m-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 5px;}
+  .m-chip[data-cat=""]{padding:7px 15px;}
+  .m-chip .mi{width:22px;height:22px;border-radius:50%;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:13px;line-height:1;background:color-mix(in srgb, var(--cc) 20%, transparent);}
+  .m-chip.on{background:color-mix(in srgb, var(--cc) 14%, #fff);border-color:var(--cc);color:var(--cc);}
+  .m-chip.on .mi{background:color-mix(in srgb, var(--cc) 32%, transparent);}
+  .m-chip[data-cat=""].on{background:var(--rouge);border-color:var(--rouge);color:#fff;}
+  .m-when-chip{appearance:none;-webkit-appearance:none;padding:7px 28px 7px 14px;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' stroke='%23999' fill='none' stroke-width='1.5'/></svg>");
     background-repeat:no-repeat;background-position:right 12px center;}
   .m-chip-sep{flex:0 0 auto;width:1px;align-self:stretch;background:var(--border);margin:4px 2px;}
-  .m-link-chip{color:var(--rouge);text-decoration:none;display:inline-flex;align-items:center;border-color:#E4D9C6;}
+  .m-link-chip{padding:7px 14px;color:var(--rouge);text-decoration:none;display:inline-flex;align-items:center;border-color:#E4D9C6;}
 
   /* Map fills the rest; the results drawer rides below it (draggable) */
   #map-area{order:2;flex:1 1 auto;min-height:0;}
@@ -503,22 +513,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         <option value="month">Ce mois</option>
         <option value="year">Toute l'année</option>
       </select>
-      <button class="m-chip on" data-cat="" onclick="pickCat(this,'')">Toutes</button>
-      <button class="m-chip" data-cat="musique" onclick="pickCat(this,'musique')">Musique</button>
-      <button class="m-chip" data-cat="cinema" onclick="pickCat(this,'cinema')">Cinéma</button>
-      <button class="m-chip" data-cat="theatre" onclick="pickCat(this,'theatre')">Spectacles</button>
-      <button class="m-chip" data-cat="expo" onclick="pickCat(this,'expo')">Expos</button>
-      <button class="m-chip" data-cat="gastronomie" onclick="pickCat(this,'gastronomie')">Gastronomie</button>
-      <button class="m-chip" data-cat="degustation" onclick="pickCat(this,'degustation')">Dégustations</button>
-      <button class="m-chip" data-cat="brocante" onclick="pickCat(this,'brocante')">Brocantes</button>
-      <button class="m-chip" data-cat="marche" onclick="pickCat(this,'marche')">Marchés</button>
-      <button class="m-chip" data-cat="enfants" onclick="pickCat(this,'enfants')">Enfants</button>
-      <button class="m-chip" data-cat="sport" onclick="pickCat(this,'sport')">Sport</button>
-      <button class="m-chip" data-cat="nature" onclick="pickCat(this,'nature')">Nature</button>
-      <button class="m-chip" data-cat="portes-ouvertes" onclick="pickCat(this,'portes-ouvertes')">Portes Ouvertes</button>
-      <button class="m-chip" data-cat="fete" onclick="pickCat(this,'fete')">Fêtes</button>
-      <button class="m-chip" data-cat="patrimoine" onclick="pickCat(this,'patrimoine')">Patrimoine</button>
-      <button class="m-chip" data-cat="ateliers" onclick="pickCat(this,'ateliers')">Ateliers</button>
+      <button class="m-chip on" data-cat="" onclick="pickCat(this,'')"><span class="ml">Toutes</span></button>
+      <button class="m-chip" data-cat="musique" style="--cc:var(--cat-musique)" onclick="pickCat(this,'musique')"><span class="mi"></span><span class="ml">Musique</span></button>
+      <button class="m-chip" data-cat="cinema" style="--cc:var(--cat-cinema)" onclick="pickCat(this,'cinema')"><span class="mi"></span><span class="ml">Cinéma</span></button>
+      <button class="m-chip" data-cat="theatre" style="--cc:var(--cat-theatre)" onclick="pickCat(this,'theatre')"><span class="mi"></span><span class="ml">Spectacles</span></button>
+      <button class="m-chip" data-cat="expo" style="--cc:var(--cat-expo)" onclick="pickCat(this,'expo')"><span class="mi"></span><span class="ml">Expos</span></button>
+      <button class="m-chip" data-cat="gastronomie" style="--cc:var(--cat-gastronomie)" onclick="pickCat(this,'gastronomie')"><span class="mi"></span><span class="ml">Gastronomie</span></button>
+      <button class="m-chip" data-cat="degustation" style="--cc:var(--cat-degustation)" onclick="pickCat(this,'degustation')"><span class="mi"></span><span class="ml">Dégustations</span></button>
+      <button class="m-chip" data-cat="brocante" style="--cc:var(--cat-brocante)" onclick="pickCat(this,'brocante')"><span class="mi"></span><span class="ml">Brocantes</span></button>
+      <button class="m-chip" data-cat="marche" style="--cc:var(--cat-marche)" onclick="pickCat(this,'marche')"><span class="mi"></span><span class="ml">Marchés</span></button>
+      <button class="m-chip" data-cat="enfants" style="--cc:var(--cat-enfants)" onclick="pickCat(this,'enfants')"><span class="mi"></span><span class="ml">Enfants</span></button>
+      <button class="m-chip" data-cat="sport" style="--cc:var(--cat-sport)" onclick="pickCat(this,'sport')"><span class="mi"></span><span class="ml">Sport</span></button>
+      <button class="m-chip" data-cat="nature" style="--cc:var(--cat-nature)" onclick="pickCat(this,'nature')"><span class="mi"></span><span class="ml">Nature</span></button>
+      <button class="m-chip" data-cat="portes-ouvertes" style="--cc:var(--cat-portes-ouvertes)" onclick="pickCat(this,'portes-ouvertes')"><span class="mi"></span><span class="ml">Portes Ouvertes</span></button>
+      <button class="m-chip" data-cat="fete" style="--cc:var(--cat-fete)" onclick="pickCat(this,'fete')"><span class="mi"></span><span class="ml">Fêtes</span></button>
+      <button class="m-chip" data-cat="patrimoine" style="--cc:var(--cat-patrimoine)" onclick="pickCat(this,'patrimoine')"><span class="mi"></span><span class="ml">Patrimoine</span></button>
+      <button class="m-chip" data-cat="ateliers" style="--cc:var(--cat-ateliers)" onclick="pickCat(this,'ateliers')"><span class="mi"></span><span class="ml">Ateliers</span></button>
       <span class="m-chip-sep"></span>
       <a class="m-link-chip" id="m-add2" href="/submit.html">＋ Soumettre</a>
       <a class="m-link-chip" id="m-contact2" href="mailto:bonjour@soirfr.com">Contact</a>
@@ -624,7 +634,7 @@ function setLang(l){
   const mc2=document.getElementById('m-contact2');if(mc2)mc2.textContent=t('contact');
   const sa=document.getElementById('sa-txt');if(sa)sa.textContent=(l==='fr'?'Rechercher cette zone':'Search this area');
   const msi=document.getElementById('m-search');if(msi)msi.placeholder=t('placeholder');
-  document.querySelectorAll('.m-chip').forEach(b=>{const c=b.getAttribute('data-cat');if(TX[l].cats[c]!==undefined)b.textContent=TX[l].cats[c];});
+  document.querySelectorAll('.m-chip').forEach(b=>{const c=b.getAttribute('data-cat');const sp=b.querySelector('.ml');if(sp&&TX[l].cats[c]!==undefined)sp.textContent=TX[l].cats[c];});
   const mw=document.getElementById('m-when');
   if(mw){const ow={today:'optToday',weekend:'optWeekend',week:'optWeek',month:'optMonth',year:'optYear'};[...mw.options].forEach(o=>{if(ow[o.value])o.textContent=t(ow[o.value]);});}
   document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
@@ -1003,7 +1013,7 @@ function renderMapPins(evs){
     if(isNaN(lat)||isNaN(lng))return;
     const did=ev._did;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}">${catGlyph(ev.category)}</div>`,iconSize:[28,28],iconAnchor:[14,14]})
     });
     m._did=did;
     m.on('click',()=>showPopup(did,m));
@@ -1026,7 +1036,7 @@ function renderMapPinsInPlace(evs){
     if(isNaN(lat)||isNaN(lng))return;
     const did=ev._did;
     const m=L.marker([lat,lng],{
-      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}"></div>`,iconSize:[20,20],iconAnchor:[10,10]})
+      icon:L.divIcon({className:'',html:`<div class="map-pin" id="pin-${did}" style="--pc:${catColor(ev.category)}">${catGlyph(ev.category)}</div>`,iconSize:[28,28],iconAnchor:[14,14]})
     });
     m._did=did;
     m.on('click',()=>showPopup(did,m));
@@ -1369,6 +1379,11 @@ async function init(){
     const c=b.getAttribute('data-cat');
     const ci=b.querySelector('.ci');
     if(ci&&c)ci.textContent=CAT_EMOJI[c]||'📍';
+  });
+  document.querySelectorAll('.m-chip').forEach(b=>{
+    const c=b.getAttribute('data-cat');
+    const mi=b.querySelector('.mi');
+    if(mi&&c)mi.textContent=CAT_EMOJI[c]||'📍';
   });
   // date-inp is hidden until user selects 'Date précise'
   // Open drawer by default
