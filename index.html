@@ -315,6 +315,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   #m-top{display:flex;flex-direction:column;order:1;flex-shrink:0;gap:8px;
     background:var(--cream);border-bottom:1px solid var(--border);padding:9px 10px;
     position:relative;z-index:1200;}
+  .m-brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .m-logo{font-family:var(--fc);font-weight:900;font-size:22px;line-height:1;
+    letter-spacing:-0.02em;text-transform:uppercase;color:var(--ink);user-select:none;}
+  .m-logo .FR{color:var(--rouge);}
+  .m-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .m-nav{font-family:var(--fc);font-weight:700;font-size:11.5px;text-transform:uppercase;
+    letter-spacing:0.04em;color:var(--rouge);text-decoration:none;white-space:nowrap;}
   .m-search-row{display:flex;align-items:center;gap:8px;background:#fff;
     border:1px solid var(--border);border-radius:24px;padding:8px 12px;
     box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;}
@@ -493,15 +500,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 
   <!-- MOBILE TOP: search bar + horizontal category chips (Google-style) -->
   <div id="m-top">
+    <div class="m-brand-row">
+      <div class="m-logo">Soir<span class="FR">FR</span></div>
+      <div class="m-actions">
+        <a class="m-nav" id="m-add2" href="/submit.html">＋ Soumettre</a>
+        <a class="m-nav" id="m-contact2" href="mailto:bonjour@soirfr.com">Contact</a>
+        <div class="lang-sw">
+          <button class="lang-b on" onclick="setLang('fr')">FR</button>
+          <button class="lang-b" onclick="setLang('en')">EN</button>
+        </div>
+      </div>
+    </div>
     <div class="m-search-row">
       <span class="m-ico">⌖</span>
       <input id="m-search" type="text" placeholder="Adresse, ville, code postal…" autocomplete="off"
         oninput="onAddrInput(this.value,'mobile')"
         onblur="setTimeout(()=>{var l=document.getElementById('m-ac-list');if(l)l.style.display='none'},200)">
-      <div class="lang-sw">
-        <button class="lang-b on" onclick="setLang('fr')">FR</button>
-        <button class="lang-b" onclick="setLang('en')">EN</button>
-      </div>
       <div id="m-ac-list" class="m-ac-list"></div>
     </div>
     <div class="m-chip-row">
@@ -528,9 +542,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       <button class="m-chip" data-cat="fete" style="--cc:var(--cat-fete)" onclick="pickCat(this,'fete')"><span class="mi"></span><span class="ml">Fêtes</span></button>
       <button class="m-chip" data-cat="patrimoine" style="--cc:var(--cat-patrimoine)" onclick="pickCat(this,'patrimoine')"><span class="mi"></span><span class="ml">Patrimoine</span></button>
       <button class="m-chip" data-cat="ateliers" style="--cc:var(--cat-ateliers)" onclick="pickCat(this,'ateliers')"><span class="mi"></span><span class="ml">Ateliers</span></button>
-      <span class="m-chip-sep"></span>
-      <a class="m-link-chip" id="m-add2" href="/submit.html">＋ Soumettre</a>
-      <a class="m-link-chip" id="m-contact2" href="mailto:bonjour@soirfr.com">Contact</a>
     </div>
   </div>
 
@@ -1445,3 +1456,4 @@ init();
 </script>
 </body>
 </html>
+
