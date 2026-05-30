@@ -350,9 +350,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span style="font-family:var(--fc);font-size:11px;color:var(--dust);letter-spacing:0.06em;" id="lbl-radius">Rayon</span>
-          <span style="font-family:var(--fc);font-weight:700;font-size:13px;color:var(--ink);" id="radius-val">25 KM</span>
+          <span style="font-family:var(--fc);font-weight:700;font-size:13px;color:var(--ink);" id="radius-val">20 KM</span>
         </div>
-        <input type="range" id="radius-range" min="5" max="200" value="25" step="5"
+        <input type="range" id="radius-range" min="5" max="200" value="20" step="5"
           oninput="document.getElementById('radius-val').textContent=this.value+' KM';
                    const t=document.getElementById('radius-select-top');
                    if(t)t.value=this.value;"
@@ -391,8 +391,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       </div>
       <div class="f-group" style="display:none">
         <div class="f-label" id="lbl-where">Où ?</div>
-        <span class="f-radius-val" id="radius-val" style="display:none">25 KM</span>
-        <input type="range" id="radius-range" min="5" max="200" value="25" step="5" style="display:none">
+        <span class="f-radius-val" id="radius-val" style="display:none">20 KM</span>
+        <input type="range" id="radius-range" min="5" max="200" value="20" step="5" style="display:none">
         <span id="lbl-around" style="display:none"></span>
         <span id="lbl-radius" style="display:none"></span>
       </div>
@@ -438,7 +438,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
       </div>
     </div>
     <input type="hidden" id="addr-input">
-    <input type="hidden" id="radius-select-top" value="25">
+    <input type="hidden" id="radius-select-top" value="20">
   </div>
 
   <!-- MAP AREA -->
@@ -479,6 +479,7 @@ const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
 let lang='fr',cats=[],allEvs=[],displayEvs=[],listEvs=[],userLat=null,userLng=null,userLabel='';let drawerOpen=true;
 let drawerListH=260; // current open height of the results list, in px (drag + toggle write here)
+let homeLat=null, homeLng=null; // the user's ACTUAL geolocated position (never overwritten by panning)
 let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
@@ -802,18 +803,17 @@ function zoomToRadius(lat,lng,km){
     {paddingTopLeft:[24,24],paddingBottomRight:[24,24],animate:false});
   setTimeout(()=>{suppressMove=false;},900);
 }
-// Recenter the map on the user's location. If we already know it, just pan
-// there; otherwise ask the browser for it.
+// Recenter the map on the user's ACTUAL location (not the roaming search center).
 function recenterUser(){
   if(!map) return;
-  if(userLat!=null && userLng!=null){
-    map.setView([userLat,userLng], Math.max(map.getZoom(), 11), {animate:true});
+  if(homeLat!=null && homeLng!=null){
+    map.setView([homeLat,homeLng], Math.max(map.getZoom(), 11), {animate:true});
   } else if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(async pos=>{
-      const lat=pos.coords.latitude, lng=pos.coords.longitude;
-      const label=await revGeo(lat,lng);
+      homeLat=pos.coords.latitude; homeLng=pos.coords.longitude;
+      const label=await revGeo(homeLat,homeLng);
       const ai=document.getElementById('addr-input'); if(ai) ai.value=label||'';
-      doSearch(lat,lng,label);
+      doSearch(homeLat,homeLng,label);
     });
   }
 }
@@ -1161,7 +1161,7 @@ function hideLoading(){document.getElementById('loading-cover').style.display='n
 function onMapMove(){
   // Always update drawer count + radius readout immediately
   updateDrawerWithVisible();
-  if(map&&!suppressMove)setRadiusUI(viewportRadiusKm());
+  if(map&&!suppressMove&&userLat!=null)setRadiusUI(viewportRadiusKm());
   if(!searchEnabled||suppressMove)return;
   clearTimeout(moveTimer);
   moveTimer=setTimeout(searchInView,900);
@@ -1254,6 +1254,7 @@ async function init(){
     navigator.geolocation.getCurrentPosition(
       async pos=>{
         const lat=pos.coords.latitude,lng=pos.coords.longitude;
+        homeLat=lat; homeLng=lng;
         const label=await revGeo(lat,lng);
         document.getElementById('addr-input').value=label||'';
         doSearch(lat,lng,label);
