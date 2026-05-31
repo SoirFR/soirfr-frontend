@@ -1080,6 +1080,11 @@ async function init(){
     let h=startHeight-dy;
     h=Math.max(0,Math.min(MAX_HEIGHT(),h));
     list.style.height=h+'px';
+    // Live-update map padding so it resizes as the drawer moves
+    if(typeof map!=='undefined'&&map){
+      map.options.paddingBottomRight=[0,h];
+      map.invalidateSize({pan:false,animate:false});
+    }
     if(e.cancelable)e.preventDefault();
   }
 
@@ -1102,7 +1107,10 @@ async function init(){
     const txt=document.getElementById('dt-toggle-txt');
     if(arr)arr.classList.toggle('up',drawerOpen);
     if(txt)txt.textContent=drawerOpen?t('hideList'):t('seeList');
-    if(typeof map!=='undefined'&&map)map.options.paddingBottomRight=[0,drawerOpen?finalH:0];
+    if(typeof map!=='undefined'&&map){
+      map.options.paddingBottomRight=[0,drawerOpen?finalH:0];
+      map.invalidateSize({pan:false,animate:false});
+    }
   }
 
   // Click handler — toggle only if it wasn't a drag
