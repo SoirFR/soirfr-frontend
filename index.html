@@ -471,7 +471,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     </div>
 
     <div id="drawer">
-      <div id="drawer-tab" onclick="toggleDrawer()" style="position:relative;">
+      <div id="drawer-tab" style="position:relative;cursor:pointer;">
       <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:32px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;"></div>
         <div class="dt-left">
           <div class="dt-count" id="dt-count">—</div>
@@ -1050,6 +1050,74 @@ async function init(){
     doSearch(47.0261,4.8357,'Beaune');
   }
 }
+
+// ─── Drawer drag-to-resize ─────────────────────────────────────────────
+(function setupDrawerDrag(){
+  const tab=document.getElementById('drawer-tab');
+  const list=document.getElementById('drawer-list');
+  if(!tab||!list)return;
+
+  let dragging=false,startY=0,startHeight=0,didDrag=false;
+  const MAX_HEIGHT=()=>window.innerHeight*0.7;     // max 70% viewport
+  const CLOSE_THRESHOLD=60;                         // below this, snap closed
+  const DRAG_THRESHOLD=5;                           // px before we consider it a drag
+
+  function getY(e){return e.touches?e.touches[0].clientY:e.clientY;}
+
+  function onStart(e){
+    dragging=true; didDrag=false;
+    startY=getY(e);
+    startHeight=list.offsetHeight;
+    list.style.transition='none';
+    document.body.style.userSelect='none';
+  }
+
+  function onMove(e){
+    if(!dragging)return;
+    const dy=getY(e)-startY;
+    if(Math.abs(dy)>DRAG_THRESHOLD)didDrag=true;
+    if(!didDrag)return;
+    let h=startHeight-dy;
+    h=Math.max(0,Math.min(MAX_HEIGHT(),h));
+    list.style.height=h+'px';
+    if(e.cancelable)e.preventDefault();
+  }
+
+  function onEnd(){
+    if(!dragging)return;
+    dragging=false;
+    list.style.transition='';
+    document.body.style.userSelect='';
+    if(!didDrag)return;  // it was a click — toggle handler will run
+    const finalH=list.offsetHeight;
+    if(finalH<CLOSE_THRESHOLD){
+      list.classList.remove('open');
+      list.style.height='';
+      drawerOpen=false;
+    }else{
+      list.classList.add('open');
+      drawerOpen=true;
+    }
+    const arr=document.getElementById('dt-arrow');
+    const txt=document.getElementById('dt-toggle-txt');
+    if(arr)arr.classList.toggle('up',drawerOpen);
+    if(txt)txt.textContent=drawerOpen?t('hideList'):t('seeList');
+    if(typeof map!=='undefined'&&map)map.options.paddingBottomRight=[0,drawerOpen?finalH:0];
+  }
+
+  // Click handler — toggle only if it wasn't a drag
+  tab.addEventListener('click',function(e){
+    if(didDrag){e.preventDefault();e.stopPropagation();didDrag=false;return;}
+    toggleDrawer();
+  });
+
+  tab.addEventListener('mousedown',onStart);
+  tab.addEventListener('touchstart',onStart,{passive:true});
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('mouseup',onEnd);
+  document.addEventListener('touchend',onEnd);
+})();
 
 init();
 </script>
