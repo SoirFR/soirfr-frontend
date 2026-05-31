@@ -1025,7 +1025,41 @@ async function init(){
     attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19,
     subdomains:'abcd'
   }).addTo(map);
-  L.control.zoom({position:'bottomright'}).addTo(map);
+  L.control.zoom({position:'topright'}).addTo(map);
+
+  // Custom recenter-to-user-location control, sits just below the +/- zoom
+  const LocateControl = L.Control.extend({
+    options: { position: 'topright' },
+    onAdd: function() {
+      const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      const btn = L.DomUtil.create('a', '', container);
+      btn.href = '#';
+      btn.title = 'Recentrer sur ma position';
+      btn.setAttribute('role','button');
+      btn.setAttribute('aria-label','Recentrer sur ma position');
+      btn.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;text-decoration:none;';
+      btn.innerHTML = '◎';
+      L.DomEvent.on(btn, 'click', function(e){
+        L.DomEvent.preventDefault(e);
+        L.DomEvent.stopPropagation(e);
+        if (userLat != null && userLng != null) {
+          map.setView([userLat, userLng], 12, { animate: true });
+        } else if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              userLat = pos.coords.latitude;
+              userLng = pos.coords.longitude;
+              map.setView([userLat, userLng], 12, { animate: true });
+            },
+            () => { alert('Position non disponible'); },
+            { timeout: 8000 }
+          );
+        }
+      });
+      return container;
+    }
+  });
+  map.addControl(new LocateControl());
   map.on('moveend',onMapMove);
 
   // Enable auto-search after 4s (after first load settles)
