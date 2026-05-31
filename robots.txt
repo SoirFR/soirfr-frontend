@@ -1,0 +1,9 @@
+# SoirFR — robots.txt
+User-agent: *
+Allow: /
+
+# No need to crawl admin
+Disallow: /admin.html
+Disallow: /admin
+
+Sitemap: https://www.soirfr.com/sitemap.xml
