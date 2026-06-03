@@ -114,9 +114,11 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);
   inset:0;
   background:linear-gradient(to right,
     var(--cream) 0%,
-    var(--cream) 30%,
-    rgba(240,234,216,0.85) 55%,
-    rgba(240,234,216,0.15) 100%);
+    var(--cream) 18%,
+    rgba(240,234,216,0.95) 35%,
+    rgba(240,234,216,0.82) 55%,
+    rgba(240,234,216,0.68) 75%,
+    rgba(240,234,216,0.55) 100%);
   pointer-events:none;
   z-index:0;
 }
@@ -364,10 +366,11 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     background:var(--cream);border-bottom:1px solid var(--border);padding:9px 10px;
     position:relative;z-index:1200;}
   .m-brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-  .m-brand-stack{display:flex;flex-direction:column;gap:3px;min-width:0;}
-  .m-tagline{font-family:var(--fc);font-weight:700;font-size:9.5px;letter-spacing:0.16em;
-    text-transform:uppercase;color:var(--rouge);line-height:1.2;}
-  .m-logo{font-family:var(--fc);font-weight:900;font-size:22px;line-height:1;
+  .m-tagline{font-family:var(--fc);font-weight:700;font-size:11px;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--rouge);line-height:1.2;text-align:left;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    padding-bottom:2px;}
+  .m-logo{font-family:var(--fc);font-weight:900;font-size:34px;line-height:1;
     letter-spacing:-0.02em;text-transform:uppercase;color:var(--ink);user-select:none;}
   .m-logo .FR{color:var(--rouge);}
   .m-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
@@ -552,10 +555,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   <!-- MOBILE TOP: search bar + horizontal category chips (Google-style) -->
   <div id="m-top">
     <div class="m-brand-row">
-      <div class="m-brand-stack">
-        <div class="m-logo">Soir<span class="FR">FR</span></div>
-        <div class="m-tagline" id="m-tag-mobile">Agenda Local · Culture &amp; Événements</div>
-      </div>
+      <div class="m-logo">Soir<span class="FR">FR</span></div>
       <div class="m-actions">
         <a class="m-nav" id="m-add2" href="/submit.html">＋ Événement</a>
         <a class="m-nav" id="m-contact2" href="mailto:bonjour@soirfr.com">Contact</a>
@@ -565,6 +565,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         </div>
       </div>
     </div>
+    <div class="m-tagline" id="m-tag-mobile">Agenda Local · Culture &amp; Événements</div>
     <div class="m-search-row">
       <span class="m-ico">⌖</span>
       <input id="m-search" type="text" placeholder="Adresse, ville, code postal…" autocomplete="off"
