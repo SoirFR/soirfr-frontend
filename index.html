@@ -100,7 +100,27 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);
 .sidebar-stripes span:nth-child(2){flex:0 0 3px;background:var(--rouge);}
 .sidebar-stripes span:nth-child(3){flex:0 0 2px;background:var(--rouge);}
 .sidebar-stripes span:nth-child(4){flex:0 0 1px;background:var(--rouge);}
-.s-logo{padding:24px 24px 20px 44px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.s-logo{padding:24px 24px 20px 44px;border-bottom:1px solid var(--border);flex-shrink:0;
+  position:relative;
+  background-image:url('/soirfr-village.jpg');
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:right center;
+  overflow:hidden;
+}
+.s-logo::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to right,
+    var(--cream) 0%,
+    var(--cream) 30%,
+    rgba(240,234,216,0.85) 55%,
+    rgba(240,234,216,0.15) 100%);
+  pointer-events:none;
+  z-index:0;
+}
+.s-logo > *{position:relative;z-index:1;}
 .s-logo-wordmark{font-family:var(--fc);font-weight:900;font-size:96px;line-height:0.88;letter-spacing:-0.03em;color:var(--ink);text-transform:uppercase;user-select:none;}
 .s-logo-wordmark .FR{color:var(--rouge);}
 .s-logo-tag{margin-top:12px;font-family:var(--fc);font-weight:700;font-size:15px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rouge);line-height:1.6;}
@@ -344,6 +364,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
     background:var(--cream);border-bottom:1px solid var(--border);padding:9px 10px;
     position:relative;z-index:1200;}
   .m-brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .m-brand-stack{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .m-tagline{font-family:var(--fc);font-weight:700;font-size:9.5px;letter-spacing:0.16em;
+    text-transform:uppercase;color:var(--rouge);line-height:1.2;}
   .m-logo{font-family:var(--fc);font-weight:900;font-size:22px;line-height:1;
     letter-spacing:-0.02em;text-transform:uppercase;color:var(--ink);user-select:none;}
   .m-logo .FR{color:var(--rouge);}
@@ -529,9 +552,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   <!-- MOBILE TOP: search bar + horizontal category chips (Google-style) -->
   <div id="m-top">
     <div class="m-brand-row">
-      <div class="m-logo">Soir<span class="FR">FR</span></div>
+      <div class="m-brand-stack">
+        <div class="m-logo">Soir<span class="FR">FR</span></div>
+        <div class="m-tagline" id="m-tag-mobile">Agenda Local · Culture &amp; Événements</div>
+      </div>
       <div class="m-actions">
-        <a class="m-nav" id="m-add2" href="/submit.html">＋ Soumettre</a>
+        <a class="m-nav" id="m-add2" href="/submit.html">＋ Événement</a>
         <a class="m-nav" id="m-contact2" href="mailto:bonjour@soirfr.com">Contact</a>
         <div class="lang-sw">
           <button class="lang-b on" onclick="setLang('fr')">FR</button>
@@ -668,8 +694,10 @@ function setLang(l){
   const ma=document.getElementById('m-add');if(ma)ma.textContent=t('addEvent');
   const mc=document.getElementById('m-contact');if(mc)mc.textContent=t('contact');
   const tf=document.getElementById('tb-filters');if(tf)tf.textContent='☰ '+t('filters');
-  const ma2=document.getElementById('m-add2');if(ma2)ma2.textContent=(l==='fr'?'＋ Soumettre':'＋ Submit');
+  const ma2=document.getElementById('m-add2');if(ma2)ma2.textContent=(l==='fr'?'＋ Événement':'＋ Event');
   const mc2=document.getElementById('m-contact2');if(mc2)mc2.textContent=t('contact');
+  const mtagMobile=document.getElementById('m-tag-mobile');
+  if(mtagMobile)mtagMobile.innerHTML=t('tag').split('\n').join(' · ');
   const sa=document.getElementById('sa-txt');if(sa)sa.textContent=(l==='fr'?'Rechercher cette zone':'Search this area');
   const msi=document.getElementById('m-search');if(msi)msi.placeholder=t('placeholder');
   document.querySelectorAll('.m-chip').forEach(b=>{const c=b.getAttribute('data-cat');const sp=b.querySelector('.ml');if(sp&&TX[l].cats[c]!==undefined)sp.textContent=TX[l].cats[c];});
