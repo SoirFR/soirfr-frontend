@@ -109,8 +109,6 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);
   background-position:right center;
   overflow:hidden;
 }
-
-}
 .s-logo > *{position:relative;z-index:1;}
 .s-logo-wordmark{font-family:var(--fc);font-weight:900;font-size:96px;line-height:0.88;letter-spacing:-0.03em;color:var(--ink);text-transform:uppercase;user-select:none;}
 .s-logo-wordmark .FR{color:var(--rouge);}
@@ -484,13 +482,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         <!-- Hidden single date for compatibility -->
         <input type="date" id="date-inp" style="display:none;">
       </div>
-      <div class="f-group" style="display:none">
-        <div class="f-label" id="lbl-where">Où ?</div>
-        <span class="f-radius-val" id="radius-val" style="display:none">20 KM</span>
-        <input type="range" id="radius-range" min="5" max="200" value="20" step="5" style="display:none">
-        <span id="lbl-around" style="display:none"></span>
-        <span id="lbl-radius" style="display:none"></span>
-      </div>
       <div class="f-group">
         <div class="f-section-label" id="lbl-cats">Catégories</div>
         <div class="f-cats">
@@ -633,8 +624,8 @@ let map=null,clusterGroup=null,userMarker=null,activeIdx=-1;
 let moveTimer=null,searchEnabled=false,suppressMove=false;
 
 const TX={
-  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Soumettre un événement',submitEvent:'Soumettre un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',until:'jusqu’au',ongoing:'en continu',contact:'Contact',filters:'Filtres',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',gastronomie:'Gastronomie',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
-  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Submit an event',submitEvent:'Submit an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',until:'until',ongoing:'ongoing',contact:'Contact',filters:'Filters',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',gastronomie:'Gastronomy',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
+  fr:{placeholder:'Rechercher un événement, un lieu…',cta:'Rechercher',lc:'Recherche en cours',addEvent:'Soumettre un événement',submitEvent:'Soumettre un événement',lblWhen:'Quand ?',lblDate:'Date précise',lblWhere:'Où ?',lblAround:'Autour de moi',lblRadius:'Rayon',lblCats:'Catégories',optToday:"Aujourd'hui",optWeekend:'Ce week-end',optWeek:'Cette semaine',optMonth:'Ce mois',optYear:"Toute l'année",optCustom:'Dates précises…',seeList:'Voir la liste',hideList:'Masquer',events:'Événements',noEvents:'Aucun événement trouvé',zoneBtn:'Afficher les événements',zoneSub:'Dans cette zone',free:'Gratuit',from:'À partir de',seeDetails:'Voir détails',until:'jusqu’au',ongoing:'en continu',enCours:'En cours',contact:'Contact',filters:'Filtres',tag:'Agenda Local\nCulture & Événements',months:['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'],cats:{'':'Toutes',musique:'Musique',cinema:'Cinéma',theatre:'Spectacles',expo:'Expos',enfants:'Enfants',gastronomie:'Gastronomie',degustation:'Dégustations',brocante:'Brocantes',marche:'Marchés',sport:'Sport',nature:'Nature','portes-ouvertes':'Portes Ouvertes',fete:'Fêtes',patrimoine:'Patrimoine',ateliers:'Ateliers',conference:'Patrimoine',autre:'Expos'}},
+  en:{placeholder:'Search for an event, a place…',cta:'Search',lc:'Searching',addEvent:'Submit an event',submitEvent:'Submit an event',lblWhen:'When?',lblDate:'Date',lblWhere:'Where?',lblAround:'Around me',lblRadius:'Radius',lblCats:'Categories',optToday:'Today',optWeekend:'This weekend',optWeek:'This week',optMonth:'This month',optYear:'This year',optCustom:'Specific dates…',seeList:'Show list',hideList:'Hide',events:'Events',noEvents:'No events found',zoneBtn:'Show events',zoneSub:'In this area',free:'Free',from:'From',seeDetails:'View details',until:'until',ongoing:'ongoing',enCours:'Now on',contact:'Contact',filters:'Filters',tag:'Local Agenda\nCulture & Events',months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],cats:{'':'All',musique:'Music',cinema:'Cinema',theatre:'Spectacles',expo:'Exhibitions',enfants:'Kids',gastronomie:'Gastronomy',degustation:'Tastings',brocante:'Flea Markets',marche:'Markets',sport:'Sport',nature:'Nature','portes-ouvertes':'Open Doors',fete:'Festivals',patrimoine:'Heritage',ateliers:'Workshops',conference:'Heritage',autre:'Expos'}}
 };
 
 // SVG category icons — 24x24 viewBox, currentColor fill/stroke.
@@ -653,6 +644,15 @@ function catLabel(c){
 function mon(s){const d=new Date(s);return isNaN(d)?'':TX[lang].months[d.getMonth()];}
 function fmtDate(s){if(!s)return '';const d=new Date(s);if(isNaN(d))return '';const h=d.getHours(),m=d.getMinutes();const time=(h===0&&m===0)?'':` · ${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`;return `${d.getDate()} ${mon(s)}${time}`;}
 function fmtDay(s){if(!s)return '--';const d=new Date(s);return isNaN(d)?'--':String(d.getDate()).padStart(2,'0');}
+// Escape scraped text before it goes into innerHTML — titles/descriptions come
+// from external sites and must never inject markup.
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+// An event is "en cours" when it started before today and runs until today or later
+function isOngoing(ev){
+  const s=String(ev.starts_at||'').slice(0,10), e=String(ev.ends_at||'').slice(0,10);
+  return !!s && !!e && s<todayISO() && e>=todayISO();
+}
 
 function setLang(l){
   lang=l;
@@ -670,9 +670,6 @@ function setLang(l){
   const rl=document.getElementById('lbl-radius');if(rl)rl.textContent=t('lblRadius');
   const si=document.getElementById('addr-input-sidebar');if(si)si.placeholder=t('placeholder');
   const dl=document.getElementById('lbl-date');if(dl)dl.textContent=t('lblDate');
-  document.getElementById('lbl-where').textContent=t('lblWhere');
-  document.getElementById('lbl-around').textContent=t('lblAround');
-  document.getElementById('lbl-radius').textContent=t('lblRadius');
   const cl=document.getElementById('lbl-cats');if(cl)cl.textContent=t('lblCats');
   document.getElementById('opt-today').textContent=t('optToday');
   document.getElementById('opt-weekend').textContent=t('optWeekend');
@@ -741,7 +738,12 @@ function dateRange(){
     if(df) return{from:df,to:new Date(new Date(df).getTime()+7*86400000).toISOString().split('T')[0]};
   }
   if(when==='today') return{from:today,to:new Date(now.getTime()+86400000).toISOString().split('T')[0]};
-  if(when==='weekend'){const day=now.getDay(),dif=day<=5?6-day:0;const sat=new Date(now.getTime()+dif*86400000);return{from:sat.toISOString().split('T')[0],to:new Date(sat.getTime()+2*86400000).toISOString().split('T')[0]};}
+  if(when==='weekend'){
+    // Sat=6, Sun=0. On Sunday the weekend is still ON — include today, end tomorrow.
+    const day=now.getDay();
+    if(day===0) return{from:today,to:new Date(now.getTime()+86400000).toISOString().split('T')[0]};
+    const sat=new Date(now.getTime()+(6-day)*86400000);
+    return{from:day===6?today:sat.toISOString().split('T')[0],to:new Date(sat.getTime()+2*86400000).toISOString().split('T')[0]};}
   if(when==='week') return{from:today,to:new Date(now.getTime()+7*86400000).toISOString().split('T')[0]};
   if(when==='month') return{from:today,to:new Date(now.getTime()+30*86400000).toISOString().split('T')[0]};
   if(when==='year') return{from:today,to:new Date(now.getTime()+365*86400000).toISOString().split('T')[0]};
@@ -907,6 +909,10 @@ function rebuildViews(raw){
 function filterCats(list){ return cats.length ? list.filter(e=>cats.includes(e.category)) : list; }
 // Human date string, range-aware for multi-day events
 function fmtWhen(ev){
+  // Running now (expo, installation…) → "EN COURS · jusqu'au 30 aoû"
+  if(isOngoing(ev)){
+    return `${t('enCours').toUpperCase()} · ${t('until')} ${new Date(ev.ends_at).getDate()} ${mon(ev.ends_at)}`;
+  }
   const ds=(ev._dates&&ev._dates.length?ev._dates:[ev.starts_at]).filter(Boolean);
   if(!ds.length) return '';
   if(ds.length===1) return fmtDate(ds[0]);
@@ -919,6 +925,7 @@ function fmtWhen(ev){
 function timeOf(s){const d=new Date(s);if(isNaN(d))return'';const h=d.getHours(),m=d.getMinutes();return (h===0&&m===0)?'':`${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`;}
 // Date for the popup: multi-day events show the range; single-day events add the end time
 function fmtWhenFull(ev){
+  if(isOngoing(ev)) return fmtWhen(ev);
   const ds=(ev._dates&&ev._dates.length?ev._dates:[ev.starts_at]).filter(Boolean);
   if(ds.length>1) return fmtWhen(ev);
   let out=fmtDate(ev.starts_at);
@@ -1135,11 +1142,11 @@ function showPopup(did,marker){
   const email=isEmail(bk)?bk:null;
   const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
   // Where: full street address when we have it, falling back to the town
-  const where=[ev.address,[ev.postcode,ev.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')||ev.city||'';
-  // What: description, stripped of any stray markup
-  const desc=ev.description?String(ev.description).replace(/<[^>]*>/g,'').trim():'';
+  const where=esc([ev.address,[ev.postcode,ev.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')||ev.city||'');
+  // What: description, stripped of any stray markup then escaped
+  const desc=ev.description?esc(String(ev.description).replace(/<[^>]*>/g,'').trim()):'';
   const imgHtml=ev.image_url
-    ?`<img src="${ev.image_url}" alt="" data-ph="lp-img-ph" onerror="imgFallback(this,'${ev.category}')">`
+    ?`<img src="${esc(ev.image_url)}" alt="" data-ph="lp-img-ph" onerror="imgFallback(this,'${esc(ev.category)}')">`
     :`<div class="lp-img-ph" style="color:${cc}">${icon}</div>`;
 
   const mob=isMobile();
@@ -1153,18 +1160,18 @@ function showPopup(did,marker){
     <div class="lp-img">${imgHtml}</div>
     <div class="lp-body">
       <div class="lp-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
-      <div class="lp-title">${ev.title}</div>
+      <div class="lp-title">${esc(ev.title)}</div>
       <div class="lp-rule"></div>
       ${ev.starts_at?`<div class="lp-meta-row"><span class="lp-meta-icon">📅</span>${fmtWhenFull(ev)}</div>`:''}
       ${where?`<div class="lp-meta-row"><span class="lp-meta-icon">📍</span>${where}${dist}</div>`:''}
       ${desc?`<div class="lp-desc">${desc}</div>`:''}
     </div>
     ${(phone||email)?`<div class="lp-contact">
-      ${phone?`<a class="lp-contact-row" href="tel:${phone.replace(/[^\d+]/g,'')}"><span class="lp-meta-icon">📞</span>${phone}</a>`:''}
-      ${email?`<a class="lp-contact-row" href="mailto:${email}"><span class="lp-meta-icon">✉️</span>${email}</a>`:''}
+      ${phone?`<a class="lp-contact-row" href="tel:${esc(phone.replace(/[^\d+]/g,''))}"><span class="lp-meta-icon">📞</span>${esc(phone)}</a>`:''}
+      ${email?`<a class="lp-contact-row" href="mailto:${esc(email)}"><span class="lp-meta-icon">✉️</span>${esc(email)}</a>`:''}
     </div>`:''}
     <div class="lp-foot">
-      ${webLink?`<a class="lp-link" href="${webLink}" target="_blank" rel="noopener">${t('seeDetails')} →</a>`:'<span></span>'}
+      ${webLink?`<a class="lp-link" href="${esc(webLink)}" target="_blank" rel="noopener">${t('seeDetails')} →</a>`:'<span></span>'}
       ${isFree?`<span class="lp-free">${t('free')}</span>`:''}
     </div>
   `)
@@ -1210,15 +1217,19 @@ function renderDrawerList(evs){
     const isFree=ev.is_free||ev.price_min===0;
     const dist=ev.distance_km?` · ${ev.distance_km} km`:'';
     const thumb=ev.image_url
-      ?`<img src="${ev.image_url}" alt="" data-ph="dl-thumb-ph" onerror="imgFallback(this,'${ev.category}')">`
+      ?`<img src="${esc(ev.image_url)}" alt="" data-ph="dl-thumb-ph" onerror="imgFallback(this,'${esc(ev.category)}')">`
       :`<div class="dl-thumb-ph" style="color:${cc}">${icon}</div>`;
+    // Ongoing events are happening TODAY — date block shows today, meta carries the range
+    const ong=isOngoing(ev);
+    const dateRef=ong?new Date().toISOString():ev.starts_at;
+    const metaBits=[ong?fmtWhen(ev):'',esc(ev.city||'')].filter(Boolean).join(' · ');
     return `<div class="dl-item" data-did="${ev._did}" onclick="selectFromList(${ev._did})">
-      <div class="dl-date-block"><div class="dl-day">${fmtDay(ev.starts_at)}</div><div class="dl-mon">${mon(ev.starts_at)}</div></div>
+      <div class="dl-date-block"><div class="dl-day">${fmtDay(dateRef)}</div><div class="dl-mon">${mon(dateRef)}</div></div>
       <div class="dl-thumb">${thumb}</div>
       <div class="dl-body">
         <div class="dl-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
-        <div class="dl-title">${ev.title}</div>
-        <div class="dl-meta">${ev.city||''}${dist}</div>
+        <div class="dl-title">${esc(ev.title)}</div>
+        <div class="dl-meta">${metaBits}${dist}</div>
       </div>
       ${isFree?`<div class="dl-free"><span class="dl-free-tag">${t('free')}</span></div>`:''}
     </div>`;
@@ -1404,17 +1415,21 @@ function onAddrInput(val, source='sidebar'){
       const d=await r.json();
       const features=d.features||[];
       if(!features.length){list.style.display='none';return;}
+      // data-* attributes instead of inline JS args — apostrophes in French place
+      // names (L'Isle-sur-Serein, L'Haÿ-les-Roses…) broke the old onclick string.
       list.innerHTML=features.map(f=>{
         const label=f.properties.label;
-        const city=f.properties.city||f.properties.name;
         const dept=f.properties.context?.split(',')?.[0]||'';
-        return `<div onclick="selectAddr('${label.replace(/'/g,"\'")}',${f.geometry.coordinates[1]},${f.geometry.coordinates[0]},'${source}')"
+        return `<div class="ac-item" data-label="${esc(label)}" data-lat="${f.geometry.coordinates[1]}" data-lng="${f.geometry.coordinates[0]}" data-source="${esc(source)}"
           style="padding:9px 14px;cursor:pointer;font-family:var(--fc);font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
           onmouseover="this.style.background='#F5F0E8'" onmouseout="this.style.background='white'">
-          <span>${label}</span>
-          <span style="font-size:11px;color:var(--dust);font-weight:400;">${dept}</span>
+          <span>${esc(label)}</span>
+          <span style="font-size:11px;color:var(--dust);font-weight:400;">${esc(dept)}</span>
         </div>`;
       }).join('');
+      list.querySelectorAll('.ac-item').forEach(el=>{
+        el.addEventListener('click',()=>selectAddr(el.dataset.label,parseFloat(el.dataset.lat),parseFloat(el.dataset.lng),el.dataset.source));
+      });
       list.style.display='block';
     }catch(e){if(list)list.style.display='none';}
   },250);
