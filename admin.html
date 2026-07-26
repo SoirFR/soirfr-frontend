@@ -597,9 +597,10 @@ async function resetPassword(e){
       err.classList.add('show');
       return;
     }
-    ok.textContent='Mot de passe mis à jour. Vous pouvez vous connecter.';
+    const remaining=typeof d.codesRemaining==='number'?d.codesRemaining:null;
+    ok.textContent='Mot de passe mis à jour.'+(remaining!==null?` Codes de récupération restants : ${remaining}.`:'')+' Vous pouvez vous connecter.';
     ok.classList.add('show');
-    setTimeout(()=>showLogin(),1800);
+    setTimeout(()=>showLogin(),2600);
   }catch(ex){
     err.textContent='Erreur de connexion';
     err.classList.add('show');
