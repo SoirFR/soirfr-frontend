@@ -113,6 +113,20 @@ body{
   margin-top:14px;text-align:center;display:none;
 }
 .login-err.show{display:block;}
+.login-ok{
+  font-family:var(--fb);font-size:13px;color:var(--green);
+  margin-top:14px;text-align:center;display:none;
+}
+.login-ok.show{display:block;}
+.login-forgot{
+  margin-top:16px;text-align:center;
+}
+.login-forgot a{
+  font-family:var(--fc);font-weight:700;font-size:11px;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--dust);text-decoration:none;
+}
+.login-forgot a:hover{color:var(--rouge);}
 
 /* ── MAIN ADMIN VIEW ── */
 .admin-view{display:none;}
@@ -425,6 +439,25 @@ body{
     </div>
     <button type="submit" class="login-btn">Entrer →</button>
     <div class="login-err" id="login-err"></div>
+    <div class="login-forgot"><a href="#" onclick="showReset(event)">Mot de passe oublié ?</a></div>
+  </form>
+
+  <form class="login-card" id="reset-form" style="display:none;" onsubmit="resetPassword(event)">
+    <div class="login-rule"></div>
+    <div class="login-title">Récupération</div>
+    <div class="login-sub">Entrez votre code de récupération pour définir un nouveau mot de passe</div>
+    <div class="login-field">
+      <div class="login-label">Code de récupération</div>
+      <input type="text" class="login-input" id="recovery-code" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="login-field">
+      <div class="login-label">Nouveau mot de passe</div>
+      <input type="password" class="login-input" id="new-pwd" autocomplete="new-password">
+    </div>
+    <button type="submit" class="login-btn">Réinitialiser →</button>
+    <div class="login-err" id="reset-err"></div>
+    <div class="login-ok" id="reset-ok"></div>
+    <div class="login-forgot"><a href="#" onclick="showLogin(event)">← Retour à la connexion</a></div>
   </form>
 </div>
 
@@ -517,6 +550,56 @@ async function login(e){
     }
     setToken(d.token);
     enterAdmin();
+  }catch(ex){
+    err.textContent='Erreur de connexion';
+    err.classList.add('show');
+  }
+}
+
+// ── FORGOT PASSWORD / RESET ──
+function showReset(e){
+  if(e)e.preventDefault();
+  document.getElementById('login-form').style.display='none';
+  document.getElementById('reset-form').style.display='block';
+  document.getElementById('reset-err').classList.remove('show');
+  document.getElementById('reset-ok').classList.remove('show');
+}
+function showLogin(e){
+  if(e)e.preventDefault();
+  document.getElementById('reset-form').style.display='none';
+  document.getElementById('login-form').style.display='block';
+  document.getElementById('recovery-code').value='';
+  document.getElementById('new-pwd').value='';
+}
+async function resetPassword(e){
+  if(e)e.preventDefault();
+  const recoveryCode=document.getElementById('recovery-code').value.trim();
+  const newPassword=document.getElementById('new-pwd').value;
+  const err=document.getElementById('reset-err');
+  const ok=document.getElementById('reset-ok');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+  if(!recoveryCode||!newPassword){return;}
+  if(newPassword.length<8){
+    err.textContent='Le nouveau mot de passe doit faire au moins 8 caractères';
+    err.classList.add('show');
+    return;
+  }
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({recoveryCode,newPassword})
+    });
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){
+      err.textContent=d.error||'Code de récupération incorrect';
+      err.classList.add('show');
+      return;
+    }
+    ok.textContent='Mot de passe mis à jour. Vous pouvez vous connecter.';
+    ok.classList.add('show');
+    setTimeout(()=>showLogin(),1800);
   }catch(ex){
     err.textContent='Erreur de connexion';
     err.classList.add('show');
