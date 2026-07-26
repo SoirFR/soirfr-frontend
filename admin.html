@@ -439,7 +439,18 @@ body{
     </div>
     <button type="submit" class="login-btn">Entrer →</button>
     <div class="login-err" id="login-err"></div>
-    <div class="login-forgot"><a href="#" onclick="showReset(event)">Mot de passe oublié ?</a></div>
+    <div class="login-forgot"><a href="#" onclick="showForgot(event)">Mot de passe oublié ?</a></div>
+  </form>
+
+  <form class="login-card" id="forgot-form" style="display:none;" onsubmit="sendResetEmail(event)">
+    <div class="login-rule"></div>
+    <div class="login-title">Mot de passe oublié</div>
+    <div class="login-sub">On vous envoie un lien de réinitialisation par email.</div>
+    <button type="submit" class="login-btn" id="forgot-btn">Envoyer le lien →</button>
+    <div class="login-err" id="forgot-err"></div>
+    <div class="login-ok" id="forgot-ok"></div>
+    <div class="login-forgot"><a href="#" onclick="showReset(event)">Utiliser un code de récupération à la place</a></div>
+    <div class="login-forgot"><a href="#" onclick="showLogin(event)">← Retour à la connexion</a></div>
   </form>
 
   <form class="login-card" id="reset-form" style="display:none;" onsubmit="resetPassword(event)">
@@ -457,7 +468,20 @@ body{
     <button type="submit" class="login-btn">Réinitialiser →</button>
     <div class="login-err" id="reset-err"></div>
     <div class="login-ok" id="reset-ok"></div>
-    <div class="login-forgot"><a href="#" onclick="showLogin(event)">← Retour à la connexion</a></div>
+    <div class="login-forgot"><a href="#" onclick="showForgot(event)">← Retour</a></div>
+  </form>
+
+  <form class="login-card" id="reset-link-form" style="display:none;" onsubmit="submitResetLink(event)">
+    <div class="login-rule"></div>
+    <div class="login-title">Nouveau mot de passe</div>
+    <div class="login-sub">Choisissez un nouveau mot de passe pour l'espace admin.</div>
+    <div class="login-field">
+      <div class="login-label">Nouveau mot de passe</div>
+      <input type="password" class="login-input" id="reset-link-pwd" autocomplete="new-password">
+    </div>
+    <button type="submit" class="login-btn">Enregistrer →</button>
+    <div class="login-err" id="reset-link-err"></div>
+    <div class="login-ok" id="reset-link-ok"></div>
   </form>
 </div>
 
@@ -557,19 +581,101 @@ async function login(e){
 }
 
 // ── FORGOT PASSWORD / RESET ──
+// Primary path: emailed reset link (sendResetEmail -> submitResetLink).
+// Fallback path: recovery code (resetPassword), kept for when email isn't
+// reachable — this is the redundancy Liza asked for, just not the default.
+let resetTokenFromLink=null;
+
+function showForgot(e){
+  if(e)e.preventDefault();
+  document.getElementById('login-form').style.display='none';
+  document.getElementById('reset-form').style.display='none';
+  document.getElementById('forgot-form').style.display='block';
+  document.getElementById('forgot-err').classList.remove('show');
+  document.getElementById('forgot-ok').classList.remove('show');
+}
 function showReset(e){
   if(e)e.preventDefault();
   document.getElementById('login-form').style.display='none';
+  document.getElementById('forgot-form').style.display='none';
   document.getElementById('reset-form').style.display='block';
   document.getElementById('reset-err').classList.remove('show');
   document.getElementById('reset-ok').classList.remove('show');
 }
 function showLogin(e){
   if(e)e.preventDefault();
+  document.getElementById('forgot-form').style.display='none';
   document.getElementById('reset-form').style.display='none';
+  document.getElementById('reset-link-form').style.display='none';
   document.getElementById('login-form').style.display='block';
   document.getElementById('recovery-code').value='';
   document.getElementById('new-pwd').value='';
+}
+async function sendResetEmail(e){
+  if(e)e.preventDefault();
+  const btn=document.getElementById('forgot-btn');
+  const err=document.getElementById('forgot-err');
+  const ok=document.getElementById('forgot-ok');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+  btn.disabled=true;
+  try{
+    await fetch(`${API_BASE}/api/admin/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({requestReset:true})
+    });
+    // Same message either way — no reason to reveal server-side state here.
+    ok.textContent='Si tout est en ordre, un lien vient d’être envoyé par email. Vérifiez aussi les spams.';
+    ok.classList.add('show');
+  }catch(ex){
+    err.textContent='Erreur de connexion';
+    err.classList.add('show');
+  }finally{
+    setTimeout(()=>{btn.disabled=false;},30000);
+  }
+}
+async function submitResetLink(e){
+  if(e)e.preventDefault();
+  const newPassword=document.getElementById('reset-link-pwd').value;
+  const err=document.getElementById('reset-link-err');
+  const ok=document.getElementById('reset-link-ok');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+  if(!newPassword){return;}
+  if(newPassword.length<8){
+    err.textContent='Le nouveau mot de passe doit faire au moins 8 caractères';
+    err.classList.add('show');
+    return;
+  }
+  if(!resetTokenFromLink){
+    err.textContent='Lien invalide ou expiré. Demandez-en un nouveau.';
+    err.classList.add('show');
+    return;
+  }
+  try{
+    const r=await fetch(`${API_BASE}/api/admin/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({resetToken:resetTokenFromLink,newPassword})
+    });
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){
+      err.textContent=d.error||'Lien invalide ou expiré. Demandez-en un nouveau.';
+      err.classList.add('show');
+      return;
+    }
+    ok.textContent='Mot de passe mis à jour. Vous pouvez vous connecter.';
+    ok.classList.add('show');
+    history.replaceState(null,'',location.pathname);
+    setTimeout(()=>{
+      document.getElementById('reset-link-form').style.display='none';
+      document.getElementById('login-form').style.display='block';
+    },2200);
+  }catch(ex){
+    err.textContent='Erreur de connexion';
+    err.classList.add('show');
+  }
 }
 async function resetPassword(e){
   if(e)e.preventDefault();
@@ -1049,6 +1155,16 @@ function escapeAttr(s){return escapeHtml(s);}
 // Try the list endpoint with our stored token. If it works we go straight in,
 // otherwise we show the login screen.
 (async function(){
+  // Arrived via an emailed reset link? Show the "set new password" form
+  // straight away, independent of any login-session check below.
+  const params=new URLSearchParams(location.search);
+  const rt=params.get('reset');
+  if(rt){
+    resetTokenFromLink=rt;
+    document.getElementById('login-form').style.display='none';
+    document.getElementById('reset-link-form').style.display='block';
+  }
+
   const t=getToken();
   if(!t)return;  // no token, show login by default
   try{
