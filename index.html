@@ -263,6 +263,19 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
 .lp-img{height:120px;overflow:hidden;position:relative;}
 .lp-img img{width:100%;height:100%;object-fit:cover;}
 .lp-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#E8E0D0;}
+/* Real photo (a scanned flyer, a poster) → tapping it should open it full-size.
+   Placeholder icon (no photo available) isn't clickable — nothing to enlarge. */
+.lp-img.has-photo img{cursor:zoom-in;}
+
+/* ── IMAGE MODAL (full-size flyer/photo view) ── */
+.img-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(17,16,9,0.92);
+  z-index:3000;align-items:center;justify-content:center;
+  padding:24px;cursor:zoom-out;
+}
+.img-modal.show{display:flex;}
+.img-modal img{max-width:100%;max-height:100%;object-fit:contain;}
 .lp-body{padding:12px 14px 10px;}
 .lp-cat{font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--rouge);margin-bottom:4px;}
 .lp-title{font-family:var(--fc);font-size:20px;font-weight:800;color:var(--ink);line-height:1.15;margin-bottom:6px;}
@@ -614,6 +627,11 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
   </div>
 </div>
 
+<!-- IMAGE MODAL: tap a flyer/photo in a popup to see it full-size -->
+<div class="img-modal" id="img-modal" onclick="closeImgModal()">
+  <img id="img-modal-src" src="" alt="">
+</div>
+
 <script>
 const SB_URL='https://ebinsidruxvbzukobshf.supabase.co';
 const SB_KEY='sb_publishable_QSnlPXEopb6x8m8N3K396Q_YPazJ0IM';
@@ -636,6 +654,19 @@ const CAT_COLORS={musique:'#F2B705',cinema:'#0077A8',theatre:'#8E7CC3',expo:'#00
 function catColor(c){return CAT_COLORS[c]||'#E23D28';}
 function catGlyph(c){return CAT_EMOJI[c]||'📍';}
 function imgFallback(img,cat){img.outerHTML=`<div class="${img.dataset.ph}">${catGlyph(cat)}</div>`;}
+
+// ── IMAGE MODAL ── tap a flyer/photo in a popup to view it full-size.
+// Submitted events (a photo of a physical flyer) often have no website to
+// link out to — the photo itself IS the "more info", so it needs to be
+// viewable at full size, not just as a 120px thumbnail in the popup.
+function openImgModal(e,src){
+  if(e)e.stopPropagation();
+  document.getElementById('img-modal-src').src=src;
+  document.getElementById('img-modal').classList.add('show');
+}
+function closeImgModal(){
+  document.getElementById('img-modal').classList.remove('show');
+}
 function t(k){return TX[lang][k]||TX.fr[k]||k;}
 function catLabel(c){
   if(!c||c==='autre')return TX[lang].cats['autre']||'Événement';
@@ -1146,8 +1177,9 @@ function showPopup(did,marker){
   // What: description, stripped of any stray markup then escaped
   const desc=ev.description?esc(String(ev.description).replace(/<[^>]*>/g,'').trim()):'';
   const imgHtml=ev.image_url
-    ?`<img src="${esc(ev.image_url)}" alt="" data-ph="lp-img-ph" onerror="imgFallback(this,'${esc(ev.category)}')">`
+    ?`<img src="${esc(ev.image_url)}" alt="" data-ph="lp-img-ph" onclick="openImgModal(event,'${esc(ev.image_url)}')" onerror="imgFallback(this,'${esc(ev.category)}')">`
     :`<div class="lp-img-ph" style="color:${cc}">${icon}</div>`;
+  const imgWrapClass=ev.image_url?'lp-img has-photo':'lp-img';
 
   const mob=isMobile();
   const popup=L.popup({
@@ -1157,7 +1189,7 @@ function showPopup(did,marker){
   })
   .setLatLng(marker.getLatLng())
   .setContent(`
-    <div class="lp-img">${imgHtml}</div>
+    <div class="${imgWrapClass}">${imgHtml}</div>
     <div class="lp-body">
       <div class="lp-cat" style="color:${cc}">${icon} ${catLabel(ev.category)}</div>
       <div class="lp-title">${esc(ev.title)}</div>
