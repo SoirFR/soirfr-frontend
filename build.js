@@ -335,15 +335,20 @@ function buildPage(tpl, page, evs, lang) {
   // The place is set in ink against the rouge, the same split as the Soir/FR
   // wordmark above it. "Que faire à" keeps its full size and colour, because
   // that phrase is what the page is found for.
-  const wParts = cfg.where.split(' ');
-  const prepLen = wParts[1] === 'the' ? 2 : 1;
-  const prep = wParts.slice(0, prepLen).join(' ');
-  const placeName = wParts.slice(prepLen).join(' ');
-  const place = `<span style="color:var(--ink);font-weight:900">${esc(placeName)}</span>`;
-
-  const tagHtml = lang === 'en'
-    ? `Things To Do ${esc(prep)} ${place}<br>Culture &amp; Events`
-    : `Que Faire ${esc(prep)} ${place}<br>Culture &amp; Événements`;
+  const makeTag = (where, l) => {
+    const w = where.split(' ');
+    const n = w[1] === 'the' ? 2 : 1;
+    const place = `<span style="color:var(--ink);font-weight:900">${esc(w.slice(n).join(' '))}</span>`;
+    return l === 'en'
+      ? `Things To Do ${esc(w.slice(0, n).join(' '))} ${place}<br>Culture &amp; Events`
+      : `Que Faire ${esc(w.slice(0, n).join(' '))} ${place}<br>Culture &amp; Événements`;
+  };
+  // Both language versions, so toggling never loses the place name.
+  const tags = {
+    fr: makeTag(page.where, 'fr'),
+    en: makeTag(page.en ? page.en.where : `in ${page.label}`, 'en')
+  };
+  const tagHtml = tags[lang];
 
   h = replaceOnce(h,
     '<div class="s-logo-tag" id="s-tag">Agenda Local<br>Culture &amp; Événements</div>',
@@ -376,8 +381,30 @@ function buildPage(tpl, page, evs, lang) {
     `<div id="drawer-list">\n${body}${moreNote}${footer}\n</div>`, 'the drawer list');
 
   // Boot straight to this place instead of asking for the visitor's location.
+  // Language buttons become real links to the other version where one exists.
+  // That keeps the place in the headline (fresh page, right heading), lands
+  // the visitor on the proper address, and gives Google genuine links between
+  // the pair rather than hreflang tags alone.
+  if (page.en) {
+    const frHref = `/${page.slug}`, enHref = `/en/${page.slug}`;
+    // Desktop and mobile carry the same pair at different indentation.
+    const re = /<button class="lang-b on" onclick="setLang\('fr'\)">FR<\/button>(\s*)<button class="lang-b" onclick="setLang\('en'\)">EN<\/button>/g;
+    const hits = (h.match(re) || []).length;
+    if (hits < 2) throw new Error(`build.js: expected 2 FR/EN button pairs in index.html, found ${hits}`);
+    h = h.replace(re, (_m, gap) => lang === 'en'
+      ? `<a class="lang-b" href="${frHref}">FR</a>${gap}<a class="lang-b on" href="${enHref}">EN</a>`
+      : `<a class="lang-b on" href="${frHref}">FR</a>${gap}<a class="lang-b" href="${enHref}">EN</a>`);
+  }
+
+  // setLang() rewrites the tagline from the translation table and would wipe
+  // the place name. Give it the localised heading to use instead.
+  h = replaceOnce(h, "if(tagEl)tagEl.innerHTML=t('tag').split('\\n').join('<br>');",
+    "if(tagEl)tagEl.innerHTML=(window.__SOIRFR_TAGS&&window.__SOIRFR_TAGS[l])||t('tag').split('\\n').join('<br>');",
+    'the setLang tagline line');
+
   h = replaceOnce(h, 'async function init(){',
-    `window.__SOIRFR_PRESET=${JSON.stringify({ lat: page.lat, lng: page.lng, label: cfg.label, km: page.km, lang, tag: tagHtml })};\nasync function init(){`,
+    `window.__SOIRFR_PRESET=${JSON.stringify({ lat: page.lat, lng: page.lng, label: cfg.label, km: page.km, lang, tag: tagHtml })};\n` +
+    `window.__SOIRFR_TAGS=${JSON.stringify(tags)};\nasync function init(){`,
     'the init function');
 
   // The preset branch replaces geolocation entirely: no browser permission
