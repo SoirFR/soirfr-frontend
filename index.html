@@ -573,6 +573,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--roug
         <option value="week" selected>Cette semaine</option>
         <option value="month">Ce mois</option>
         <option value="year">Toute l'année</option>
+        <option value="custom">Dates précises…</option>
       </select>
       <button class="m-chip on" data-cat="" onclick="pickCat(this,'')"><span class="ml">Toutes</span></button>
       <button class="m-chip" data-cat="musique" style="--cc:var(--cat-musique)" onclick="pickCat(this,'musique')"><span class="mi"></span><span class="ml">Musique</span></button>
@@ -720,7 +721,7 @@ function setLang(l){
   const msi=document.getElementById('m-search');if(msi)msi.placeholder=t('placeholder');
   document.querySelectorAll('.m-chip').forEach(b=>{const c=b.getAttribute('data-cat');const sp=b.querySelector('.ml');if(sp&&TX[l].cats[c]!==undefined)sp.textContent=TX[l].cats[c];});
   const mw=document.getElementById('m-when');
-  if(mw){const ow={today:'optToday',weekend:'optWeekend',week:'optWeek',month:'optMonth',year:'optYear'};[...mw.options].forEach(o=>{if(ow[o.value])o.textContent=t(ow[o.value]);});}
+  if(mw){const ow={today:'optToday',weekend:'optWeekend',week:'optWeek',month:'optMonth',year:'optYear',custom:'optCustom'};[...mw.options].forEach(o=>{if(ow[o.value])o.textContent=t(ow[o.value]);});}
   document.getElementById('dt-toggle-txt').textContent=drawerOpen?t('hideList'):t('seeList');
   document.getElementById('dt-label').textContent=t('events');
   const tagEl=document.getElementById('s-tag');
@@ -753,6 +754,15 @@ function onWhenChange(val){
     if(!dt.value){
       const nextWeek=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
       dt.value=nextWeek;
+    }
+    // On mobile the date fields sit inside the filters panel, which may be
+    // shut. Open it, or the inputs appear somewhere the user cannot see.
+    const sb=document.getElementById('sidebar');
+    const tf=document.getElementById('tb-filters');
+    if(sb&&tf&&getComputedStyle(tf).display!=='none'){
+      sb.classList.add('open');
+      const bd=document.getElementById('filters-backdrop');
+      if(bd)bd.classList.add('open');
     }
   } else {
     wrap.style.display='none';
@@ -1253,7 +1263,7 @@ function renderDrawerList(evs){
       :`<div class="dl-thumb-ph" style="color:${cc}">${icon}</div>`;
     // Ongoing events are happening TODAY — date block shows today, meta carries the range
     const ong=isOngoing(ev);
-    const dateRef=ong?new Date().toISOString():ev.starts_at;
+    const dateRef=ong?dateRange().from:ev.starts_at;
     const metaBits=[ong?fmtWhen(ev):'',esc(ev.city||'')].filter(Boolean).join(' · ');
     return `<div class="dl-item" data-did="${ev._did}" onclick="selectFromList(${ev._did})">
       <div class="dl-date-block"><div class="dl-day">${fmtDay(dateRef)}</div><div class="dl-mon">${mon(dateRef)}</div></div>
